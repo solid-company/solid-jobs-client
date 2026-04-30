@@ -3,8 +3,15 @@ use serde_json::Value;
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let url = "https://solid.jobs/public-api/offers/IT?campaign=rust-client&pageSize=5";
-    
-    let response: Value = reqwest::get(url).await?.json().await?;
+
+    let client = reqwest::Client::new();
+    let response: Value = client
+        .get(url)
+        .header("X-Api-Version", "1.0")
+        .send()
+        .await?
+        .json()
+        .await?;
     
     println!("Znaleziono {} ofert.", response["totalCount"]);
     

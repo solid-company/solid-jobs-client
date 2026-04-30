@@ -7,7 +7,9 @@ params = {
     "pageSize": 5
 }
 
-response = requests.get(url, params=params)
+headers = {"X-Api-Version": "1.0"}
+
+response = requests.get(url, params=params, headers=headers)
 response.raise_for_status()
 
 data = response.json()

@@ -9,6 +9,7 @@ public class FetchOffers {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create("https://solid.jobs/public-api/offers/IT?campaign=java-client&pageSize=5"))
                 .header("Accept", "application/json")
+                .header("X-Api-Version", "1.0")
                 .build();
 
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());

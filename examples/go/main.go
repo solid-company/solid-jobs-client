@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"os"
 )
 
 type Response struct {
@@ -21,14 +22,36 @@ type Response struct {
 
 func main() {
 	url := "https://solid.jobs/public-api/offers/IT?campaign=go-client&pageSize=5"
-	resp, err := http.Get(url)
+
+	req, err := http.NewRequest(http.MethodGet, url, nil)
 	if err != nil {
-		panic(err)
+		fmt.Fprintf(os.Stderr, "Błąd tworzenia żądania: %v\n", err)
+		os.Exit(1)
+	}
+	req.Header.Set("X-Api-Version", "1.0")
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Błąd sieci: %v\n", err)
+		os.Exit(1)
 	}
 	defer resp.Body.Close()
 
+	if resp.StatusCode == http.StatusTooManyRequests {
+		fmt.Fprintln(os.Stderr, "Przekroczono limit zapytań (429). Spróbuj ponownie za chwilę.")
+		os.Exit(1)
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		fmt.Fprintf(os.Stderr, "Błąd HTTP: %d\n", resp.StatusCode)
+		os.Exit(1)
+	}
+
 	var data Response
-	json.NewDecoder(resp.Body).Decode(&data)
+	if err := json.NewDecoder(resp.Body).Decode(&data); err != nil {
+		fmt.Fprintf(os.Stderr, "Błąd parsowania JSON: %v\n", err)
+		os.Exit(1)
+	}
 
 	fmt.Printf("Znaleziono %d ofert.\n", data.TotalCount)
 	for _, job := range data.Jobs {

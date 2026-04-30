@@ -1,0 +1,24 @@
+# C# / .NET
+examples/csharp/bin/
+examples/csharp/obj/
+
+# Go
+examples/go/solidjobs-example
+examples/go/solidjobs-example.exe
+
+# Python
+examples/python/__pycache__/
+examples/python/*.pyc
+examples/python/.venv/
+examples/python/venv/
+
+# Java
+examples/java/*.class
+
+# Rust
+examples/rust/target/
+
+# Swift
+examples/swift/.build/
+examples/swift/*.o
+examples/swift/*.d
