@@ -1,112 +1,121 @@
-# Słowniki i dozwolone wartości API
+# API Dictionaries and Allowed Values
 
-Ten plik zawiera zestawienie wszystkich dozwolonych wartości tekstowych (enumów), których można używać jako parametrów wyszukiwania w publicznym API SOLID.Jobs.
+[![PL](https://img.shields.io/badge/lang-PL-red.svg)](DICTIONARIES.pl.md)
 
-Wartości te należy przekazywać w języku angielskim (dokładnie tak, jak zdefiniowano poniżej) dla odpowiednich parametrów zapytania.
+This file contains all allowed text values (enums) that can be used as search parameters in the SOLID.Jobs public API.
+
+Values must be passed in English exactly as defined below.
 
 ---
 
-## 1. Doświadczenie (`search.experiences`)
+## 1. Experience Levels (`search.experiences`)
 
-Możliwe poziomy doświadczenia w ofertach pracy:
+Available experience levels:
 
-* `None` (Brak)
-* `Intern` (Staż)
+* `Intern`
 * `Junior`
 * `Regular`
 * `Senior`
 
 ---
 
-## 2. Dywizje (parametr ścieżki `{division}`)
+## 2. Divisions (path parameter `{division}`)
 
-Określa główny obszar branżowy ofert pracy:
+Defines the main industry area for job offers:
 
 * `IT`
-* `Engineering` (Inżynieria i produkcja)
+* `Engineering`
 * `Marketing`
-* `Sales` (Sprzedaż)
+* `Sales`
 * `HR`
-* `Logistics` (Logistyka)
-* `Finances` (Finanse)
-* `Other` (Inni specjaliści)
+* `Logistics`
+* `Finances`
+* `Other`
 
 ---
 
-## 3. Kategorie i Podkategorie (`search.categories` i `search.subCategories`)
+## 3. Categories and Subcategories (`search.categories` and `search.subCategories`)
 
-Poniżej znajduje się hierarchiczne zestawienie **Kategorii** oraz przypisanych do nich **Podkategorii**. Możesz używać tych wartości do zawężania wyników wyszukiwania.
+Below is a hierarchical list of **Categories** and their **Subcategories**. Use these values to narrow search results.
 
-### Dywizja: IT
-* **`Developer`** (Programista)
-  * *Podkategorie:* `JavaScript`, `Python`, `DotNet`, `Java`, `PHP`, `Android`, `IOS`, `Scala`, `Ruby`, `CCPlusPlus`, `Angular`, `React`, `NodeJs`, `Golang`, `OtherDeveloper`
+### Categories for Division: IT
+
+* **`Developer`**
+  * *Subcategories:* `JavaScript`, `Python`, `DotNet`, `Java`, `PHP`, `Android`, `IOS`, `Scala`, `Ruby`, `CCPlusPlus`, `Angular`, `React`, `NodeJs`, `Golang`, `OtherDeveloper`
 * **`Administrator`**
-  * *Podkategorie:* `SystemsAdministrator`, `NetworkAdministrator`, `DatabaseAdministrator`, `CloudAdministrator`, `OtherAdministrator`
-* **`ItManager`** (Manager/Agile)
-  * *Podkategorie:* `ProjectManager`, `ProductManager`, `ScrumMaster`, `ProductOwner`, `OtherItManager`
+  * *Subcategories:* `SystemsAdministrator`, `NetworkAdministrator`, `DatabaseAdministrator`, `CloudAdministrator`, `OtherAdministrator`
+* **`ItManager`**
+  * *Subcategories:* `ProjectManager`, `ProductManager`, `ScrumMaster`, `ProductOwner`, `OtherItManager`
 * **`Tester`**
-  * *Podkategorie:* `ManualTester`, `TestAutomationEngineer`, `OtherTester`
-* **`Analyst`** (Analityk) -> *Podkategoria:* `Analyst`
-* **`Architect`** (Architekt) -> *Podkategoria:* `Architect`
-* **`DataScience`** -> *Podkategoria:* `DataScience`
-* **`DevOps`** -> *Podkategoria:* `DevOps`
-* **`Security`** -> *Podkategoria:* `Security`
-* **`Support`** -> *Podkategoria:* `Support`
-* **`UXUIDesigner`** -> *Podkategoria:* `UXUIDesigner`
-* **`OtherIT`** -> *Podkategorie:* `ERP`, `OtherIT`
+  * *Subcategories:* `ManualTester`, `TestAutomationEngineer`, `OtherTester`
+* **`Analyst`** → *Subcategory:* `Analyst`
+* **`Architect`** → *Subcategory:* `Architect`
+* **`DataScience`** → *Subcategory:* `DataScience`
+* **`DevOps`** → *Subcategory:* `DevOps`
+* **`Security`** → *Subcategory:* `Security`
+* **`Support`** → *Subcategory:* `Support`
+* **`UXUIDesigner`** → *Subcategory:* `UXUIDesigner`
+* **`OtherIT`** → *Subcategories:* `ERP`, `OtherIT`
 
-### Dywizja: Engineering (Inżynieria)
-* **`AutomationAndRobotics`** (Automatyka i Robotyka) -> *Podkategoria:* `AutomationAndRobotics`
-* **`Mechatronics`** (Mechatronika) -> *Podkategoria:* `Mechatronics`
-* **`TechnologicalEngineering`** (Inżynieria technologiczna) -> *Podkategoria:* `TechnologicalEngineering`
-* **`QualityEngineering`** (Inżynieria jakości) -> *Podkategoria:* `QualityEngineering`
-* **`ProductionEngineering`** (Inżynieria produkcji) -> *Podkategoria:* `ProductionEngineering`
-* **`ConstructionAndDesign`** (Konstrukcja i projektowanie) -> *Podkategoria:* `ConstructionAndDesign`
-* **`MaintenanceEngineering`** (Utrzymywanie ruchu) -> *Podkategoria:* `MaintenanceEngineering`
-* **`ElectronicsAndTelecommunication`** (Elektronika i telekomunikacja) -> *Podkategoria:* `ElectronicsAndTelecommunication`
-* **`OtherEngineering`** (Pozostali specjaliści) -> *Podkategoria:* `OtherEngineering`
+### Categories for Division: Engineering
 
-### Dywizja: Marketing
-* **`Marketing`** -> *Podkategoria:* `Marketing`
-* **`Copywriter`** -> *Podkategoria:* `Copywriter`
-* **`SocialMediaSpecialist`** -> *Podkategoria:* `SocialMediaSpecialist`
-* **`SEO`** (SEO/SEM) -> *Podkategoria:* `SEO`
-* **`EmployerBrandingSpecialist`** -> *Podkategoria:* `EmployerBrandingSpecialist`
-* **`MediaAndJournalism`** (Media i dziennikarstwo) -> *Podkategoria:* `MediaAndJournalism`
-* **`ECommerce`** -> *Podkategoria:* `ECommerce`
-* **`OtherMarketing`** -> *Podkategoria:* `OtherMarketing`
+* **`AutomationAndRobotics`** → *Subcategory:* `AutomationAndRobotics`
+* **`Mechatronics`** → *Subcategory:* `Mechatronics`
+* **`TechnologicalEngineering`** → *Subcategory:* `TechnologicalEngineering`
+* **`QualityEngineering`** → *Subcategory:* `QualityEngineering`
+* **`ProductionEngineering`** → *Subcategory:* `ProductionEngineering`
+* **`ConstructionAndDesign`** → *Subcategory:* `ConstructionAndDesign`
+* **`MaintenanceEngineering`** → *Subcategory:* `MaintenanceEngineering`
+* **`ElectronicsAndTelecommunication`** → *Subcategory:* `ElectronicsAndTelecommunication`
+* **`OtherEngineering`** → *Subcategory:* `OtherEngineering`
 
-### Dywizja: Sales (Sprzedaż)
-* **`B2BSales`** (Sprzedaż B2B) -> *Podkategoria:* `B2BSales`
-* **`B2CSales`** (Sprzedaż B2C i detaliczna) -> *Podkategoria:* `B2CSales`
-* **`AccountManager`** -> *Podkategoria:* `AccountManager`
-* **`CustomerSuccess`** -> *Podkategoria:* `CustomerSuccess`
-* **`OtherSales`** -> *Podkategoria:* `OtherSales`
+### Categories for Division: Marketing
 
-### Dywizja: HR
-* **`Recruiter`** (Rekruter) -> *Podkategoria:* `Recruiter`
-* **`HRSpecialist`** (Specjalista HR) -> *Podkategoria:* `HRSpecialist`
-* **`GrowthAndCourses`** (Rozwój i szkolenia) -> *Podkategoria:* `GrowthAndCourses`
-* **`OtherHr`** -> *Podkategoria:* `OtherHr`
+* **`Marketing`** → *Subcategory:* `Marketing`
+* **`Copywriter`** → *Subcategory:* `Copywriter`
+* **`SocialMediaSpecialist`** → *Subcategory:* `SocialMediaSpecialist`
+* **`SEO`** → *Subcategory:* `SEO`
+* **`EmployerBrandingSpecialist`** → *Subcategory:* `EmployerBrandingSpecialist`
+* **`MediaAndJournalism`** → *Subcategory:* `MediaAndJournalism`
+* **`ECommerce`** → *Subcategory:* `ECommerce`
+* **`OtherMarketing`** → *Subcategory:* `OtherMarketing`
 
-### Dywizja: Logistics (Logistyka)
-* **`SupplyChain`** (Łańcuch Dostaw) -> *Podkategoria:* `SupplyChain`
-* **`Transport`** (Transport i Spedycja) -> *Podkategoria:* `Transport`
-* **`PurchasesAndSupplies`** (Zakupy i Zaopatrzenie) -> *Podkategoria:* `PurchasesAndSupplies`
-* **`ProductionPlanning`** (Planowanie produkcji) -> *Podkategoria:* `ProductionPlanning`
-* **`OtherLogistics`** -> *Podkategoria:* `OtherLogistics`
+### Categories for Division: Sales
 
-### Dywizja: Finances (Finanse)
-* **`Accounting`** (Księgowość) -> *Podkategoria:* `Accounting`
-* **`AnalyticsAndControlling`** (Analityka i Controlling) -> *Podkategoria:* `AnalyticsAndControlling`
-* **`AccountingConsulting`** (Doradztwo) -> *Podkategoria:* `AccountingConsulting`
-* **`AuditsAndCompliance`** (Audyt i Compliance) -> *Podkategoria:* `AuditsAndCompliance`
-* **`Insurance`** (Ubezpieczenia) -> *Podkategoria:* `Insurance`
-* **`OtherFinances`** -> *Podkategoria:* `OtherFinances`
+* **`B2BSales`** → *Subcategory:* `B2BSales`
+* **`B2CSales`** → *Subcategory:* `B2CSales`
+* **`AccountManager`** → *Subcategory:* `AccountManager`
+* **`CustomerSuccess`** → *Subcategory:* `CustomerSuccess`
+* **`OtherSales`** → *Subcategory:* `OtherSales`
 
-### Dywizja: Other (Inne)
-* **`Management`** (Zarządzanie) -> *Podkategoria:* `Management`
-* **`ResearchAndDevelopment`** (Badania i Rozwój) -> *Podkategoria:* `ResearchAndDevelopment`
-* **`LawAndAdministration`** (Prawo i Administracja) -> *Podkategoria:* `LawAndAdministration`
-* **`OtherOther`** (Pozostali)
-  * *Podkategorie:* `GraphicDesigner` (Grafika i animacja), `Backoffice`, `OtherOther`
+### Categories for Division: HR
+
+* **`Recruiter`** → *Subcategory:* `Recruiter`
+* **`HRSpecialist`** → *Subcategory:* `HRSpecialist`
+* **`GrowthAndCourses`** → *Subcategory:* `GrowthAndCourses`
+* **`OtherHr`** → *Subcategory:* `OtherHr`
+
+### Categories for Division: Logistics
+
+* **`SupplyChain`** → *Subcategory:* `SupplyChain`
+* **`Transport`** → *Subcategory:* `Transport`
+* **`PurchasesAndSupplies`** → *Subcategory:* `PurchasesAndSupplies`
+* **`ProductionPlanning`** → *Subcategory:* `ProductionPlanning`
+* **`OtherLogistics`** → *Subcategory:* `OtherLogistics`
+
+### Categories for Division: Finances
+
+* **`Accounting`** → *Subcategory:* `Accounting`
+* **`AnalyticsAndControlling`** → *Subcategory:* `AnalyticsAndControlling`
+* **`AccountingConsulting`** → *Subcategory:* `AccountingConsulting`
+* **`AuditsAndCompliance`** → *Subcategory:* `AuditsAndCompliance`
+* **`Insurance`** → *Subcategory:* `Insurance`
+* **`OtherFinances`** → *Subcategory:* `OtherFinances`
+
+### Categories for Division: Other
+
+* **`Management`** → *Subcategory:* `Management`
+* **`ResearchAndDevelopment`** → *Subcategory:* `ResearchAndDevelopment`
+* **`LawAndAdministration`** → *Subcategory:* `LawAndAdministration`
+* **`OtherOther`**
+  * *Subcategories:* `GraphicDesigner`, `Backoffice`, `OtherOther`

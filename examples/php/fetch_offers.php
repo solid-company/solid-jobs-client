@@ -1,41 +1,41 @@
 <?php
-$query = http_build_query([
-    'campaign' => 'php-client',
-    'pageSize' => 5,
+
+require_once __DIR__ . '/SolidJobsClient.php';
+require_once __DIR__ . '/helpers.php';
+
+$client = new SolidJobsClient();
+$campaign = 'php-client';
+
+// 1) Basic listing — first page of IT offers
+$firstPage = $client->getOffers('IT', $campaign, ['pageSize' => 5]);
+echo "Found {$firstPage['totalCount']} offers (pages: {$firstPage['totalPages']}).\n";
+
+foreach ($firstPage['jobs'] as $job) {
+    $sal = formatSalary($job['salary']);
+    echo "{$job['title']} @ {$job['company']} [{$job['experienceLevel']}] ($sal)\n";
+}
+
+// 2) Filtering + sorting — Senior Java in Warsaw, highest salary first
+$seniorJava = $client->getOffers('IT', $campaign, [
+    'searchTerms' => ['java'],
+    'cities' => ['Warszawa'],
+    'subCategories' => ['Java'],
+    'experiences' => ['Senior'],
+    'minimumSalary' => 15000,
+    'sortActive' => 'salaryTo',
+    'sortDirection' => 'desc',
+    'pageSize' => 10,
 ]);
 
-$url = "https://solid.jobs/public-api/offers/IT?" . $query;
-
-$ch = curl_init($url);
-curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-curl_setopt($ch, CURLOPT_TIMEOUT, 10);
-curl_setopt($ch, CURLOPT_HTTPHEADER, ['X-Api-Version: 1.0']);
-
-$body = curl_exec($ch);
-$httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-$curlError = curl_error($ch);
-curl_close($ch);
-
-if ($curlError) {
-    fwrite(STDERR, "Błąd sieci: $curlError\n");
-    exit(1);
+echo "\nSenior Java in Warsaw: {$seniorJava['totalCount']} offers\n";
+foreach ($seniorJava['jobs'] as $job) {
+    echo "- {$job['title']} (" . formatSalary($job['salary']) . ")\n";
 }
 
-if ($httpCode === 429) {
-    fwrite(STDERR, "Przekroczono limit zapytań (429). Spróbuj ponownie za chwilę.\n");
-    exit(1);
+// 3) Iterate all .NET offers
+echo "\nAll .NET offers:\n";
+$allDotNet = $client->getAllOffers('IT', $campaign, ['subCategories' => ['DotNet']]);
+foreach ($allDotNet as $i => $job) {
+    printf("%3d. %s @ %s\n", $i + 1, $job['title'], $job['company']);
 }
-
-if ($httpCode !== 200) {
-    fwrite(STDERR, "Błąd HTTP: $httpCode\n");
-    exit(1);
-}
-
-$data = json_decode($body, true);
-
-echo "Znaleziono " . $data['totalCount'] . " ofert.\n";
-
-foreach ($data['jobs'] as $job) {
-    $salary = $job['salary'];
-    echo "{$job['title']} @ {$job['company']} ({$salary['from']}-{$salary['to']} {$salary['currency']})\n";
-}
+echo "Total: " . count($allDotNet) . "\n";

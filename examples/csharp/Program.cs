@@ -1,31 +1,71 @@
-using System.Net;
-using System.Net.Http.Json;
-using System.Text.Json;
+using Microsoft.Extensions.DependencyInjection;
+using SolidJobs;
+using SolidJobs.Models;
 
-using var client = new HttpClient();
-client.DefaultRequestHeaders.Add("X-Api-Version", "1.0");
+var services = new ServiceCollection();
 
-var url = "https://solid.jobs/public-api/offers/IT?campaign=dotnet-client&pageSize=5";
-
-var httpResponse = await client.GetAsync(url);
-
-if (httpResponse.StatusCode == HttpStatusCode.TooManyRequests)
+services.AddHttpClient<SolidJobsClient>(http =>
 {
-    Console.Error.WriteLine("Przekroczono limit zapytań (429). Spróbuj ponownie za chwilę.");
-    return;
+    http.BaseAddress = new Uri("https://solid.jobs/");
+    http.DefaultRequestHeaders.Add("X-Api-Version", "1.0");
+    http.Timeout = TimeSpan.FromSeconds(30);
+});
+
+var provider = services.BuildServiceProvider();
+var client = provider.GetRequiredService<SolidJobsClient>();
+
+using var cts = new CancellationTokenSource(TimeSpan.FromMinutes(2));
+const string campaign = "dotnet-client";
+
+var firstPage = await client.GetOffersAsync(
+    Division.IT,
+    campaign,
+    new OfferQuery { PageSize = 5 },
+    cts.Token);
+
+Console.WriteLine($"Found {firstPage.TotalCount} offers (pages: {firstPage.TotalPages}).");
+
+foreach (var job in firstPage.Jobs)
+{
+    Console.WriteLine($"{job.Title} @ {job.Company} [{job.ExperienceLevel}] ({FormatSalary(job.Salary)})");
 }
 
-httpResponse.EnsureSuccessStatusCode();
+var seniorJava = await client.GetOffersAsync(
+    Division.IT,
+    campaign,
+    new OfferQuery
+    {
+        SearchTerms = ["java"],
+        Cities = ["Warszawa"],
+        SubCategories = [JobSubCategory.Java],
+        Experiences = [ExperienceLevel.Senior],
+        MinimumSalary = 15_000,
+        Sort = SortField.SalaryTo,
+        Direction = SortDirection.Desc,
+        PageSize = 10,
+    },
+    cts.Token);
 
-var response = await httpResponse.Content.ReadFromJsonAsync<JsonElement>();
-
-Console.WriteLine($"Znaleziono {response.GetProperty("totalCount").GetInt32()} ofert.");
-
-foreach (var job in response.GetProperty("jobs").EnumerateArray())
+Console.WriteLine($"\nSenior Java in Warsaw: {seniorJava.TotalCount} offers");
+foreach (var job in seniorJava.Jobs)
 {
-    var title = job.GetProperty("title").GetString();
-    var company = job.GetProperty("company").GetString();
-    var salary = job.GetProperty("salary");
-
-    Console.WriteLine($"{title} @ {company} ({salary.GetProperty("from")}-{salary.GetProperty("to")} {salary.GetProperty("currency")})");
+    Console.WriteLine($"- {job.Title} ({FormatSalary(job.Salary)})");
 }
+
+Console.WriteLine("\nAll .NET offers:");
+var counter = 0;
+await foreach (var job in client.GetAllOffersAsync(
+    Division.IT,
+    campaign,
+    new OfferQuery { SubCategories = [JobSubCategory.DotNet] },
+    cts.Token))
+{
+    counter++;
+    Console.WriteLine($"{counter,3}. {job.Title} @ {job.Company}");
+}
+Console.WriteLine($"Total: {counter}");
+
+static string FormatSalary(Salary salary) =>
+    salary is { From: null, To: null }
+        ? $"no range ({salary.Currency})"
+        : $"{salary.From:0}-{salary.To:0} {salary.Currency}/{salary.Period}";

@@ -1,60 +1,70 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
-	"net/http"
 	"os"
 )
 
-type Response struct {
-	TotalCount int `json:"totalCount"`
-	Jobs       []struct {
-		Title   string `json:"title"`
-		Company string `json:"company"`
-		Salary  struct {
-			From     int    `json:"from"`
-			To       int    `json:"to"`
-			Currency string `json:"currency"`
-		} `json:"salary"`
-	} `json:"jobs"`
+func formatSalary(s Salary) string {
+	if s.From == nil && s.To == nil {
+		return fmt.Sprintf("no range (%s)", s.Currency)
+	}
+	from, to := float64(0), float64(0)
+	if s.From != nil {
+		from = *s.From
+	}
+	if s.To != nil {
+		to = *s.To
+	}
+	return fmt.Sprintf("%.0f-%.0f %s/%s", from, to, s.Currency, s.Period)
 }
 
 func main() {
-	url := "https://solid.jobs/public-api/offers/IT?campaign=go-client&pageSize=5"
+	client := NewClient()
+	campaign := "go-client"
 
-	req, err := http.NewRequest(http.MethodGet, url, nil)
+	// 1) Basic listing — first page of IT offers
+	firstPage, err := client.GetOffers("IT", campaign, OfferQuery{PageSize: 5})
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Błąd tworzenia żądania: %v\n", err)
+		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 		os.Exit(1)
 	}
-	req.Header.Set("X-Api-Version", "1.0")
 
-	resp, err := http.DefaultClient.Do(req)
+	fmt.Printf("Found %d offers (pages: %d).\n", firstPage.TotalCount, firstPage.TotalPages)
+	for _, job := range firstPage.Jobs {
+		fmt.Printf("%s @ %s [%s] (%s)\n", job.Title, job.Company, job.ExperienceLevel, formatSalary(job.Salary))
+	}
+
+	// 2) Filtering + sorting — Senior Java in Warsaw, highest salary first
+	seniorJava, err := client.GetOffers("IT", campaign, OfferQuery{
+		SearchTerms:   []string{"java"},
+		Cities:        []string{"Warszawa"},
+		SubCategories: []string{"Java"},
+		Experiences:   []string{"Senior"},
+		MinimumSalary: 15000,
+		SortActive:    "salaryTo",
+		SortDirection:  "desc",
+		PageSize:      10,
+	})
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Błąd sieci: %v\n", err)
-		os.Exit(1)
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode == http.StatusTooManyRequests {
-		fmt.Fprintln(os.Stderr, "Przekroczono limit zapytań (429). Spróbuj ponownie za chwilę.")
+		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 		os.Exit(1)
 	}
 
-	if resp.StatusCode != http.StatusOK {
-		fmt.Fprintf(os.Stderr, "Błąd HTTP: %d\n", resp.StatusCode)
-		os.Exit(1)
+	fmt.Printf("\nSenior Java in Warsaw: %d offers\n", seniorJava.TotalCount)
+	for _, job := range seniorJava.Jobs {
+		fmt.Printf("- %s (%s)\n", job.Title, formatSalary(job.Salary))
 	}
 
-	var data Response
-	if err := json.NewDecoder(resp.Body).Decode(&data); err != nil {
-		fmt.Fprintf(os.Stderr, "Błąd parsowania JSON: %v\n", err)
+	// 3) Iterate all .NET offers
+	fmt.Println("\nAll .NET offers:")
+	allDotNet, err := client.GetAllOffers("IT", campaign, OfferQuery{SubCategories: []string{"DotNet"}})
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 		os.Exit(1)
 	}
-
-	fmt.Printf("Znaleziono %d ofert.\n", data.TotalCount)
-	for _, job := range data.Jobs {
-		fmt.Printf("%s @ %s (%d-%d %s)\n", job.Title, job.Company, job.Salary.From, job.Salary.To, job.Salary.Currency)
+	for i, job := range allDotNet {
+		fmt.Printf("%3d. %s @ %s\n", i+1, job.Title, job.Company)
 	}
+	fmt.Printf("Total: %d\n", len(allDotNet))
 }
