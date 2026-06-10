@@ -17,7 +17,7 @@ The API is designed for external integrators, job aggregators, and anyone who wa
 ## Main Endpoint
 
 ```http
-GET https://solid.jobs/public-api/offers/{division}
+GET https://solid.jobs/public-api/offers/{division}?campaign=my-awesome-aggregator
 ```
 
 *Available divisions: `IT`, `Engineering`, `Marketing`, `Sales`, `HR`, `Logistics`, `Finances`, `Other`.*
