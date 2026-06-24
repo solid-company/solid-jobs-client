@@ -161,14 +161,14 @@ Payment period returned in the `salary` and `secondarySalary` objects:
 
 Type of contract returned in the `salary` and `secondarySalary` objects:
 
-* `UoP` — employment contract (umowa o pracę)
+* `UoP` — employment contract 
 * `B2B`
-* `UoD` — contract for specific work (umowa o dzieło)
-* `UZ` — contract of mandate (umowa zlecenie)
-* `Praktyka` — internship contract (umowa o praktykę)
-* `Staż` — traineeship contract (umowa o staż)
-* `Kontrakt` — managerial contract (kontrakt menedżerski)
-* `Inne` — other (e.g. agency agreement)
+* `UoD` — contract for specific work
+* `UZ` — contract of mandate
+* `Praktyka` — internship contract
+* `Staż` — traineeship contract 
+* `Kontrakt` — managerial contract
+* `Inne` — other
 
 ---
 
