@@ -119,3 +119,62 @@ Below is a hierarchical list of **Categories** and their **Subcategories**. Use 
 * **`LawAndAdministration`** → *Subcategory:* `LawAndAdministration`
 * **`OtherOther`**
   * *Subcategories:* `GraphicDesigner`, `Backoffice`, `OtherOther`
+
+---
+
+## 4. Skill and Language Levels (`skills[].level`, `languages[].level`)
+
+Both the `skills` and `languages` arrays use the same level enum:
+
+* `NiceToHave`
+* `Basic`
+* `Advanced`
+* `Expert`
+
+---
+
+## 5. Salary Currency (`salary.currency`)
+
+Currency code returned in the `salary` and `secondarySalary` objects:
+
+* `PLN`
+* `EUR`
+* `USD`
+* `GBP`
+* `CHF`
+
+---
+
+## 6. Salary Period (`salary.period`)
+
+Payment period returned in the `salary` and `secondarySalary` objects:
+
+* `Month`
+* `Year`
+* `Day`
+* `Hour`
+* `Fixed`
+
+---
+
+## 7. Employment Type (`salary.employmentType`)
+
+Type of contract returned in the `salary` and `secondarySalary` objects:
+
+* `UoP` — employment contract (umowa o pracę)
+* `B2B`
+* `UoD` — contract for specific work (umowa o dzieło)
+* `UZ` — contract of mandate (umowa zlecenie)
+* `Praktyka` — internship contract (umowa o praktykę)
+* `Staż` — traineeship contract (umowa o staż)
+* `Kontrakt` — managerial contract (kontrakt menedżerski)
+* `Inne` — other (e.g. agency agreement)
+
+---
+
+## 8. Contract Time (`contractTime`)
+
+Working-time dimension returned at the offer level:
+
+* `full_time`
+* `part_time`

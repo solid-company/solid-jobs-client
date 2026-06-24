@@ -120,3 +120,62 @@ Poniżej znajduje się hierarchiczne zestawienie **Kategorii** oraz przypisanych
 * **`LawAndAdministration`** (Prawo i Administracja) → *Podkategoria:* `LawAndAdministration`
 * **`OtherOther`** (Pozostali)
   * *Podkategorie:* `GraphicDesigner` (Grafika i animacja), `Backoffice`, `OtherOther`
+
+---
+
+## 4. Poziomy umiejętności i języków (`skills[].level`, `languages[].level`)
+
+Tablice `skills` i `languages` używają tego samego enuma poziomu:
+
+* `NiceToHave` (mile widziane)
+* `Basic` (podstawowy)
+* `Advanced` (zaawansowany)
+* `Expert` (ekspert)
+
+---
+
+## 5. Waluta wynagrodzenia (`salary.currency`)
+
+Kod waluty zwracany w obiektach `salary` i `secondarySalary`:
+
+* `PLN`
+* `EUR`
+* `USD`
+* `GBP`
+* `CHF`
+
+---
+
+## 6. Okres wynagrodzenia (`salary.period`)
+
+Okres rozliczeniowy zwracany w obiektach `salary` i `secondarySalary`:
+
+* `Month` (miesiąc)
+* `Year` (rok)
+* `Day` (dzień)
+* `Hour` (godzina)
+* `Fixed` (stała kwota)
+
+---
+
+## 7. Rodzaj umowy (`salary.employmentType`)
+
+Rodzaj umowy zwracany w obiektach `salary` i `secondarySalary`:
+
+* `UoP` — umowa o pracę
+* `B2B`
+* `UoD` — umowa o dzieło
+* `UZ` — umowa zlecenie
+* `Praktyka` — umowa o praktykę
+* `Staż` — umowa o staż
+* `Kontrakt` — kontrakt menedżerski
+* `Inne` — pozostałe (np. umowa agencyjna)
+
+---
+
+## 8. Wymiar czasu pracy (`contractTime`)
+
+Wymiar czasu pracy zwracany na poziomie oferty:
+
+* `full_time`
+* `part_time`
