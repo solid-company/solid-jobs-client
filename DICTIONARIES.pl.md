@@ -2,9 +2,9 @@
 
 [![EN](https://img.shields.io/badge/lang-EN-blue.svg)](DICTIONARIES.md)
 
-Ten plik zawiera zestawienie wszystkich dozwolonych wartości tekstowych (enumów), których można używać jako parametrów wyszukiwania w publicznym API SOLID.Jobs.
+Ten plik zawiera zestawienie wszystkich dozwolonych wartości tekstowych (enumów) używanych w publicznym API SOLID.Jobs. Sekcje 1–3 to parametry wyszukiwania; Sekcje 4–8 opisują wartości zwracane w polach odpowiedzi (niefiltrowalne).
 
-Wartości te należy przekazywać w języku angielskim (dokładnie tak, jak zdefiniowano poniżej) dla odpowiednich parametrów zapytania.
+Wartości parametrów wyszukiwania należy przekazywać w języku angielskim, dokładnie tak, jak zdefiniowano poniżej.
 
 ---
 
@@ -120,3 +120,62 @@ Poniżej znajduje się hierarchiczne zestawienie **Kategorii** oraz przypisanych
 * **`LawAndAdministration`** (Prawo i Administracja) → *Podkategoria:* `LawAndAdministration`
 * **`OtherOther`** (Pozostali)
   * *Podkategorie:* `GraphicDesigner` (Grafika i animacja), `Backoffice`, `OtherOther`
+
+---
+
+## 4. Poziomy umiejętności i języków (`skills[].level`, `languages[].level`)
+
+Tablice `skills` i `languages` używają tego samego enuma poziomu:
+
+* `NiceToHave` (mile widziane)
+* `Basic` (podstawowy)
+* `Advanced` (zaawansowany)
+* `Expert` (ekspert)
+
+---
+
+## 5. Waluta wynagrodzenia (`salary.currency`)
+
+Kod waluty zwracany w obiektach `salary` i `secondarySalary`:
+
+* `PLN`
+* `EUR`
+* `USD`
+* `GBP`
+* `CHF`
+
+---
+
+## 6. Okres wynagrodzenia (`salary.period`)
+
+Okres rozliczeniowy zwracany w obiektach `salary` i `secondarySalary`:
+
+* `Month` (miesiąc)
+* `Year` (rok)
+* `Day` (dzień)
+* `Hour` (godzina)
+* `Fixed` (stała kwota)
+
+---
+
+## 7. Rodzaj umowy (`salary.employmentType`)
+
+Rodzaj umowy zwracany w obiektach `salary` i `secondarySalary`:
+
+* `UoP` — umowa o pracę
+* `B2B`
+* `UoD` — umowa o dzieło
+* `UZ` — umowa zlecenie
+* `Praktyka` — umowa o praktykę
+* `Staż` — umowa o staż
+* `Kontrakt` — kontrakt menedżerski
+* `Inne` — pozostałe (np. umowa agencyjna)
+
+---
+
+## 8. Wymiar czasu pracy (`contractTime`)
+
+Wymiar czasu pracy zwracany na poziomie oferty:
+
+* `full_time`
+* `part_time`

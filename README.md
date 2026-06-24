@@ -101,9 +101,9 @@ A successful `200 OK` response returns a JSON object with the following structur
         "to": 20000,
         "currency": "PLN",
         "period": "Month",
-        "employmentType": "Employment"
+        "employmentType": "UoP"
       },
-      "contractTime": "FullTime",
+      "contractTime": "full_time",
       "locations": ["Warszawa", "Kraków"],
       "benefits": ["Private healthcare", "Sport card"],
       "isRemote": true,
@@ -112,10 +112,10 @@ A successful `200 OK` response returns a JSON object with the following structur
       "experienceLevel": "Senior",
       "skills": [
         { "name": ".NET", "level": "Advanced" },
-        { "name": "Azure", "level": "Regular" }
+        { "name": "Azure", "level": "NiceToHave" }
       ],
       "languages": [
-        { "name": "English", "level": "B2" }
+        { "name": "English", "level": "Advanced" }
       ],
       "description": "We are looking for a Senior .NET Developer...",
       "validFrom": "2026-05-01T00:00:00+00:00",
@@ -149,7 +149,7 @@ A successful `200 OK` response returns a JSON object with the following structur
 | `companyLogoUrl` | Company logo URL (nullable). |
 | `salary` | Primary salary object. |
 | `secondarySalary` | Secondary salary object, e.g. different contract type (nullable). |
-| `contractTime` | Contract time (e.g. `FullTime`, `PartTime`). |
+| `contractTime` | Contract time (e.g. `full_time`, `part_time`). |
 | `locations` | Array of city names. |
 | `benefits` | Array of benefit descriptions. |
 | `isRemote` | Whether the position is fully remote. |
@@ -171,7 +171,7 @@ A successful `200 OK` response returns a JSON object with the following structur
 | `to` | Upper bound of salary range (nullable). |
 | `currency` | Currency code (e.g. `PLN`, `EUR`, `USD`). |
 | `period` | Payment period (e.g. `Month`, `Hour`). |
-| `employmentType` | Employment type (e.g. `B2B`, `Employment`). |
+| `employmentType` | Employment type (e.g. `B2B`, `UoP`). |
 
 ### Error Responses
 
