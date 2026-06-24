@@ -101,9 +101,9 @@ Poprawna odpowiedź `200 OK` zwraca obiekt JSON o następującej strukturze:
         "to": 20000,
         "currency": "PLN",
         "period": "Month",
-        "employmentType": "Employment"
+        "employmentType": "UoP"
       },
-      "contractTime": "FullTime",
+      "contractTime": "full_time",
       "locations": ["Warszawa", "Kraków"],
       "benefits": ["Prywatna opieka zdrowotna", "Karta sportowa"],
       "isRemote": true,
@@ -112,10 +112,10 @@ Poprawna odpowiedź `200 OK` zwraca obiekt JSON o następującej strukturze:
       "experienceLevel": "Senior",
       "skills": [
         { "name": ".NET", "level": "Advanced" },
-        { "name": "Azure", "level": "Regular" }
+        { "name": "Azure", "level": "NiceToHave" }
       ],
       "languages": [
-        { "name": "English", "level": "B2" }
+        { "name": "English", "level": "Advanced" }
       ],
       "description": "Szukamy Senior .NET Developera...",
       "validFrom": "2026-05-01T00:00:00+00:00",
@@ -149,7 +149,7 @@ Poprawna odpowiedź `200 OK` zwraca obiekt JSON o następującej strukturze:
 | `companyLogoUrl` | URL logo firmy (nullable). |
 | `salary` | Główny obiekt wynagrodzenia. |
 | `secondarySalary` | Dodatkowy obiekt wynagrodzenia, np. inny typ umowy (nullable). |
-| `contractTime` | Wymiar czasu pracy (np. `FullTime`, `PartTime`). |
+| `contractTime` | Wymiar czasu pracy (np. `full_time`, `part_time`). |
 | `locations` | Tablica nazw miast. |
 | `benefits` | Tablica opisów benefitów. |
 | `isRemote` | Czy stanowisko jest w pełni zdalne. |
@@ -171,7 +171,7 @@ Poprawna odpowiedź `200 OK` zwraca obiekt JSON o następującej strukturze:
 | `to` | Górna granica widełek płacowych (nullable). |
 | `currency` | Kod waluty (np. `PLN`, `EUR`, `USD`). |
 | `period` | Okres rozliczeniowy (np. `Month`, `Hour`). |
-| `employmentType` | Typ zatrudnienia (np. `B2B`, `Employment`). |
+| `employmentType` | Typ zatrudnienia (np. `B2B`, `UoP`). |
 
 ### Odpowiedzi błędów
 

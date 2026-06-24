@@ -2,9 +2,9 @@
 
 [![PL](https://img.shields.io/badge/lang-PL-red.svg)](DICTIONARIES.pl.md)
 
-This file contains all allowed text values (enums) that can be used as search parameters in the SOLID.Jobs public API.
+This file contains all allowed text values (enums) used by the SOLID.Jobs public API. Sections 1–3 are search parameters; Sections 4–8 document the values returned in response fields (not filterable).
 
-Values must be passed in English exactly as defined below.
+Search-parameter values must be passed in English exactly as defined below.
 
 ---
 
@@ -161,14 +161,14 @@ Payment period returned in the `salary` and `secondarySalary` objects:
 
 Type of contract returned in the `salary` and `secondarySalary` objects:
 
-* `UoP` — employment contract 
+* `UoP` — employment contract
 * `B2B`
 * `UoD` — contract for specific work
 * `UZ` — contract of mandate
 * `Praktyka` — internship contract
-* `Staż` — traineeship contract 
+* `Staż` — traineeship contract
 * `Kontrakt` — managerial contract
-* `Inne` — other
+* `Inne` — other (e.g. agency agreement)
 
 ---
 

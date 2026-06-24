@@ -2,9 +2,9 @@
 
 [![EN](https://img.shields.io/badge/lang-EN-blue.svg)](DICTIONARIES.md)
 
-Ten plik zawiera zestawienie wszystkich dozwolonych wartości tekstowych (enumów), których można używać jako parametrów wyszukiwania w publicznym API SOLID.Jobs.
+Ten plik zawiera zestawienie wszystkich dozwolonych wartości tekstowych (enumów) używanych w publicznym API SOLID.Jobs. Sekcje 1–3 to parametry wyszukiwania; Sekcje 4–8 opisują wartości zwracane w polach odpowiedzi (niefiltrowalne).
 
-Wartości te należy przekazywać w języku angielskim (dokładnie tak, jak zdefiniowano poniżej) dla odpowiednich parametrów zapytania.
+Wartości parametrów wyszukiwania należy przekazywać w języku angielskim, dokładnie tak, jak zdefiniowano poniżej.
 
 ---
 
