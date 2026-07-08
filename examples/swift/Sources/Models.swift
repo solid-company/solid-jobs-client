@@ -44,3 +44,57 @@ struct SkillTag: Decodable {
     let level: String
     let name: String
 }
+
+// MARK: - Market statistics
+
+struct MarketStatisticsResponse: Decodable {
+    let scopeKind: String
+    let scopeKey: String
+    let generatedAt: String
+    let includedSections: [String]
+    let demand: DemandStats?
+    let salary: SalaryStats?
+    let experience: [Bucket]?
+    let topLocations: [Bucket]?
+    let topSkills: [Bucket]?
+}
+
+struct DemandStats: Decodable {
+    let activeOffers: Int
+    let distinctEmployers: Int
+    let remoteOffers: Int
+    let remotePercentage: Int
+    let offerTrend: [TrendPoint]
+}
+
+struct TrendPoint: Decodable {
+    let period: String
+    let offerCount: Int
+}
+
+struct SalaryStats: Decodable {
+    let currency: String
+    let overall: SalaryBand?
+    let b2b: SalaryStat?
+    let permanent: SalaryStat?
+}
+
+struct SalaryBand: Decodable {
+    let min: Double
+    let p25: Double
+    let median: Double
+    let p75: Double
+    let max: Double
+}
+
+struct SalaryStat: Decodable {
+    let median: Double
+    let average: Double
+    let offerCount: Int
+}
+
+struct Bucket: Decodable {
+    let label: String
+    let offerCount: Int
+    let percentage: Int
+}

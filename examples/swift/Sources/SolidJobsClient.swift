@@ -53,6 +53,54 @@ class SolidJobsClient {
         fatalError("Max retries exceeded")
     }
 
+    func getMarketStatistics(
+        scopeKind: String,
+        scopeKey: String,
+        campaign: String,
+        fields: [String] = []
+    ) async throws -> MarketStatisticsResponse {
+        var params = [("campaign", campaign)]
+        if !fields.isEmpty {
+            params.append(("fields", fields.joined(separator: ",")))
+        }
+
+        let queryString = params
+            .map { "\($0.0.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)!)=\($0.1.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)!)" }
+            .joined(separator: "&")
+
+        guard let url = URL(string: "\(baseURL)/public-api/market-statistics/\(scopeKind)/\(scopeKey)?\(queryString)") else {
+            fatalError("Invalid URL")
+        }
+
+        var request = URLRequest(url: url)
+        request.setValue(apiVersion, forHTTPHeaderField: "X-Api-Version")
+        request.timeoutInterval = 30
+
+        for attempt in 0...maxRetries {
+            let (data, response) = try await URLSession.shared.data(for: request)
+            guard let httpResponse = response as? HTTPURLResponse else {
+                fatalError("Invalid response")
+            }
+
+            if httpResponse.statusCode == 429, attempt < maxRetries {
+                let retryAfter = httpResponse.value(forHTTPHeaderField: "Retry-After")
+                    .flatMap { Int($0) } ?? Int(pow(2.0, Double(attempt)))
+                fputs("Rate limited (429). Retrying in \(retryAfter)s...\n", stderr)
+                try await Task.sleep(nanoseconds: UInt64(retryAfter) * 1_000_000_000)
+                continue
+            }
+
+            guard httpResponse.statusCode == 200 else {
+                let body = String(data: data, encoding: .utf8) ?? ""
+                fatalError("HTTP \(httpResponse.statusCode): \(body)")
+            }
+
+            return try decoder.decode(MarketStatisticsResponse.self, from: data)
+        }
+
+        fatalError("Max retries exceeded")
+    }
+
     func getAllOffers(division: String, campaign: String, query: [(String, String)] = []) async throws -> [JobOffer] {
         var all: [JobOffer] = []
         var pageIndex = 0

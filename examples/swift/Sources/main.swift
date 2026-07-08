@@ -1,5 +1,11 @@
 import Foundation
 
+// `swift run solidjobs-example stats` runs the market-statistics demo instead of the offers demo.
+if CommandLine.arguments.contains("stats") {
+    try await runStatistics()
+    exit(0)
+}
+
 func formatSalary(_ salary: Salary) -> String {
     if salary.from == nil, salary.to == nil {
         return "no range (\(salary.currency))"
