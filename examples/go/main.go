@@ -20,6 +20,12 @@ func formatSalary(s Salary) string {
 }
 
 func main() {
+	// `go run . stats` runs the market-statistics demo instead of the offers demo.
+	if len(os.Args) > 1 && os.Args[1] == "stats" {
+		runStatisticsDemo()
+		return
+	}
+
 	client := NewClient()
 	campaign := "go-client"
 
