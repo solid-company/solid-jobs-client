@@ -50,6 +50,26 @@ class SolidJobsClient
         return $all;
     }
 
+    public function getMarketStatistics(string $scopeKind, string $scopeKey, string $campaign, array $fields = []): array
+    {
+        if (!preg_match('/^[a-z0-9-]{1,64}$/', $campaign)) {
+            throw new InvalidArgumentException('Campaign must contain only lowercase letters, digits and hyphens (max 64 chars).');
+        }
+
+        $params = ['campaign' => $campaign];
+        if (!empty($fields)) {
+            $params['fields'] = implode(',', $fields);
+        }
+
+        $url = "{$this->baseUrl}/public-api/market-statistics/"
+            . rawurlencode($scopeKind) . '/' . rawurlencode($scopeKey)
+            . '?' . http_build_query($params);
+
+        $body = $this->requestWithRetry($url);
+
+        return json_decode($body, true);
+    }
+
     private function requestWithRetry(string $url): string
     {
         for ($attempt = 0; ; $attempt++) {
