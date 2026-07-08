@@ -1,5 +1,6 @@
 mod client;
 mod models;
+mod statistics;
 
 use client::SolidJobsClient;
 use models::Salary;
@@ -19,6 +20,11 @@ fn format_salary(s: &Salary) -> String {
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    // `cargo run -- stats` runs the market-statistics demo instead of the offers demo.
+    if std::env::args().any(|a| a == "stats") {
+        return statistics::run().await;
+    }
+
     let client = SolidJobsClient::new();
     let campaign = "rust-client";
 
