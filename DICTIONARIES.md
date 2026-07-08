@@ -2,7 +2,7 @@
 
 [![PL](https://img.shields.io/badge/lang-PL-red.svg)](DICTIONARIES.pl.md)
 
-This file contains all allowed text values (enums) used by the SOLID.Jobs public API. Sections 1–3 are search parameters; Sections 4–8 document the values returned in response fields (not filterable).
+This file contains all allowed text values (enums) used by the SOLID.Jobs public API. Sections 1–3 are search parameters; Sections 4–8 document the values returned in response fields (not filterable); Sections 9–10 cover the [Market Statistics endpoint](README.md#market-statistics-endpoint).
 
 Search-parameter values must be passed in English exactly as defined below.
 
@@ -178,3 +178,36 @@ Working-time dimension returned at the offer level:
 
 * `full_time`
 * `part_time`
+
+---
+
+## 9. Market Statistics Scope Kinds (`scopeKind` path parameter)
+
+Used by the [Market Statistics endpoint](README.md#market-statistics-endpoint). `scopeKind` selects the kind of scope the statistics describe; `scopeKey` then names a concrete value within it.
+
+| `scopeKind` | Meaning | `scopeKey` — allowed values |
+| :--- | :--- | :--- |
+| `division` | A whole division | A Division from Section 2 (e.g. `IT`) |
+| `mainCategory` | A main category | A Category from Section 3 (e.g. `Developer`) |
+| `subcategory` | A single specialization | A Subcategory from Section 3 (e.g. `React`) |
+| `subcategoryGroup` | A group of related specializations | `Frontend` or `Mobile` (see below) |
+| `city` | A single city | The city slug, lowercased (e.g. `warszawa`) |
+
+`scopeKind` is case-insensitive. For enum-based kinds the `scopeKey` must be a defined value (an unknown key returns `404`); for `city` any non-empty slug is accepted and normalized to lowercase.
+
+**Subcategory groups** (`scopeKey` for `subcategoryGroup`):
+
+* `Frontend` — aggregates `JavaScript`, `Angular`, `React`
+* `Mobile` — aggregates `Android`, `IOS`
+
+---
+
+## 10. Market Statistics Sections (`fields` query parameter)
+
+Comma-separated subset of sections returned by the Market Statistics endpoint (case-insensitive). Omit `fields` to get every section available for the scope.
+
+* `demand` — active offers, distinct employers, remote share and quarterly offer trend
+* `salary` — overall salary band (percentiles) plus precomputed B2B / permanent stats
+* `experience` — distribution of active offers by experience level
+* `topLocations` — most common cities (**not available** for the `city` scope)
+* `topSkills` — most demanded skills
