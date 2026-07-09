@@ -50,12 +50,13 @@ public class JsonHelper {
     }
 
     private static String extractContainer(String json, String key, char open, char close) {
-        int keyIdx = json.indexOf("\"" + key + "\"");
-        if (keyIdx < 0) return null;
-        int colon = json.indexOf(':', keyIdx);
-        if (colon < 0) return null;
+        // Match the key only where it is immediately followed by a colon, i.e. a real
+        // object member. This skips bare string occurrences such as the section names
+        // listed inside the includedSections array, which otherwise match first.
+        var m = Pattern.compile("\"" + Pattern.quote(key) + "\"\\s*:").matcher(json);
+        if (!m.find()) return null;
 
-        int i = colon + 1;
+        int i = m.end();
         while (i < json.length() && Character.isWhitespace(json.charAt(i))) i++;
         if (i >= json.length() || json.charAt(i) != open) return null; // null or other scalar
 
