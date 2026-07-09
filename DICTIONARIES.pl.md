@@ -2,7 +2,7 @@
 
 [![EN](https://img.shields.io/badge/lang-EN-blue.svg)](DICTIONARIES.md)
 
-Ten plik zawiera zestawienie wszystkich dozwolonych wartości tekstowych (enumów) używanych w publicznym API SOLID.Jobs. Sekcje 1–3 to parametry wyszukiwania; Sekcje 4–8 opisują wartości zwracane w polach odpowiedzi (niefiltrowalne).
+Ten plik zawiera zestawienie wszystkich dozwolonych wartości tekstowych (enumów) używanych w publicznym API SOLID.Jobs. Sekcje 1–3 to parametry wyszukiwania; Sekcje 4–8 opisują wartości zwracane w polach odpowiedzi (niefiltrowalne); Sekcje 9–10 dotyczą [endpointu statystyk rynku](README.pl.md#endpoint-statystyk-rynku).
 
 Wartości parametrów wyszukiwania należy przekazywać w języku angielskim, dokładnie tak, jak zdefiniowano poniżej.
 
@@ -179,3 +179,36 @@ Wymiar czasu pracy zwracany na poziomie oferty:
 
 * `full_time`
 * `part_time`
+
+---
+
+## 9. Rodzaje zakresu statystyk (`scopeKind` parametr ścieżki)
+
+Używane przez [endpoint statystyk rynku](README.pl.md#endpoint-statystyk-rynku). `scopeKind` wybiera rodzaj zakresu, którego dotyczą statystyki; `scopeKey` wskazuje konkretną wartość w jego obrębie.
+
+| `scopeKind` | Znaczenie | `scopeKey` — dozwolone wartości |
+| :--- | :--- | :--- |
+| `division` | Cały dział | Dział z Sekcji 2 (np. `IT`) |
+| `mainCategory` | Kategoria główna | Kategoria z Sekcji 3 (np. `Developer`) |
+| `subcategory` | Pojedyncza specjalizacja | Podkategoria z Sekcji 3 (np. `React`) |
+| `subcategoryGroup` | Grupa powiązanych specjalizacji | `Frontend` lub `Mobile` (patrz niżej) |
+| `city` | Pojedyncze miasto | Slug miasta, małymi literami (np. `warszawa`) |
+
+`scopeKind` jest case-insensitive. Dla rodzajów enumowych `scopeKey` musi być zdefiniowaną wartością (nieznany klucz zwraca `404`); dla `city` akceptowany jest dowolny niepusty slug, normalizowany do małych liter.
+
+**Grupy podkategorii** (`scopeKey` dla `subcategoryGroup`):
+
+* `Frontend` — agreguje `JavaScript`, `Angular`, `React`
+* `Mobile` — agreguje `Android`, `IOS`
+
+---
+
+## 10. Sekcje statystyk rynku (`fields` parametr query)
+
+Rozdzielony przecinkami podzbiór sekcji zwracanych przez endpoint statystyk rynku (case-insensitive). Pomiń `fields`, aby otrzymać wszystkie sekcje dostępne dla zakresu.
+
+* `demand` — aktywne oferty, unikalni pracodawcy, udział zdalnych i trend kwartalny
+* `salary` — widełki ogólne (percentyle) oraz precomputed statystyki B2B / UoP
+* `experience` — rozkład aktywnych ofert wg poziomu doświadczenia
+* `topLocations` — najczęstsze miasta (**niedostępne** dla zakresu `city`)
+* `topSkills` — najbardziej poszukiwane umiejętności

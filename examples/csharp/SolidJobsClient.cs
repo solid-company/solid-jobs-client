@@ -59,6 +59,45 @@ public sealed partial class SolidJobsClient
         return result ?? throw new InvalidOperationException("API returned an empty response body.");
     }
 
+    /// <summary>Fetches labour-market statistics for the given scope.</summary>
+    /// <param name="scopeKind">Scope kind: <c>division</c>, <c>mainCategory</c>, <c>subcategory</c>, <c>subcategoryGroup</c> or <c>city</c>.</param>
+    /// <param name="scopeKey">Scope key within the kind (e.g. <c>IT</c>, <c>React</c>, <c>warszawa</c>).</param>
+    /// <param name="campaign">Traffic-tracking identifier (required).</param>
+    /// <param name="fields">Optional subset of sections to return; null/empty returns all sections available for the scope.</param>
+    public async Task<MarketStatisticsResponse> GetMarketStatisticsAsync(
+        string scopeKind,
+        string scopeKey,
+        string campaign,
+        IReadOnlyList<string>? fields = null,
+        CancellationToken cancellationToken = default)
+    {
+        if (!CampaignRegex.IsMatch(campaign))
+        {
+            throw new ArgumentException(
+                "Campaign must contain only lowercase letters, digits and hyphens (max 64 chars).",
+                nameof(campaign));
+        }
+
+        var query = $"campaign={Uri.EscapeDataString(campaign)}";
+        if (fields is { Count: > 0 })
+        {
+            query += $"&fields={Uri.EscapeDataString(string.Join(',', fields))}";
+        }
+
+        var requestUri = $"public-api/market-statistics/{Uri.EscapeDataString(scopeKind)}/{Uri.EscapeDataString(scopeKey)}?{query}";
+
+        using var response = await SendWithRetryAsync(requestUri, cancellationToken);
+        if (!response.IsSuccessStatusCode)
+        {
+            var body = await response.Content.ReadAsStringAsync(cancellationToken);
+            throw new HttpRequestException($"HTTP {(int)response.StatusCode}: {body}");
+        }
+
+        var result = await response.Content.ReadFromJsonAsync<MarketStatisticsResponse>(JsonOptions, cancellationToken);
+
+        return result ?? throw new InvalidOperationException("API returned an empty response body.");
+    }
+
     /// <summary>
     /// Streams every offer matching the criteria, walking the pages automatically.
     /// </summary>

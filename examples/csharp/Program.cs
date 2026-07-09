@@ -17,6 +17,13 @@ var client = provider.GetRequiredService<SolidJobsClient>();
 using var cts = new CancellationTokenSource(TimeSpan.FromMinutes(2));
 const string campaign = "dotnet-client";
 
+// `dotnet run stats` runs the market-statistics demo instead of the offers demo.
+if (args.Contains("stats"))
+{
+    await StatisticsDemo.RunAsync(client, "dotnet-stats", cts.Token);
+    return;
+}
+
 var firstPage = await client.GetOffersAsync(
     Division.IT,
     campaign,

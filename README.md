@@ -178,7 +178,7 @@ A successful `200 OK` response returns a JSON object with the following structur
 **400 Bad Request** — invalid or missing `campaign`:
 
 ```
-Make sure that campaign parameter exist and contains only letters, numbers and dashes (max 64 chars long).
+Make sure that campaign parameter exists and contains only lowercase letters, numbers and dashes (max 64 chars long).
 ```
 
 **400 Bad Request** — invalid `division`:
@@ -186,6 +186,184 @@ Make sure that campaign parameter exist and contains only letters, numbers and d
 ```
 Division not allowed: 'InvalidValue'. Avialable values are: IT, Engineering, Marketing, Sales, HR, Logistics, Finances, Other.
 ```
+
+**429 Too Many Requests** — rate limit exceeded. Retry after a short delay.
+
+---
+
+## Market Statistics Endpoint
+
+Aggregated labour-market statistics for a single **scope** — a division, a main category, a specialization (subcategory), a subcategory group, or a city. Like the offers endpoint it needs no authorization (only the `campaign` parameter) and returns a flat, stable JSON contract. Responses are cacheable for up to 1 hour.
+
+```http
+GET https://solid.jobs/public-api/market-statistics/{scopeKind}/{scopeKey}?campaign=my-awesome-aggregator
+```
+
+The same `X-Api-Version: 1.0` header, the `campaign` rules, and the rate limits (300 req/min per IP, queue 10) described above apply here too.
+
+### Path Parameters
+
+| Parameter | Type | Description |
+| :--- | :--- | :--- |
+| `scopeKind` | string | Kind of scope (case-insensitive). One of `division`, `mainCategory`, `subcategory`, `subcategoryGroup`, `city`. |
+| `scopeKey` | string | Concrete value within the kind — see the mapping below. |
+
+**`scopeKey` allowed values** (an unknown kind or key returns `404`):
+
+| `scopeKind` | `scopeKey` value | Example | Allowed values |
+| :--- | :--- | :--- | :--- |
+| `division` | Division name | `IT` | [DICTIONARIES §2](DICTIONARIES.md#2-divisions-path-parameter-division) |
+| `mainCategory` | Main category name | `Developer` | [DICTIONARIES §3](DICTIONARIES.md#3-categories-and-subcategories-searchcategories-and-searchsubcategories) (categories) |
+| `subcategory` | Subcategory name | `React` | [DICTIONARIES §3](DICTIONARIES.md#3-categories-and-subcategories-searchcategories-and-searchsubcategories) (subcategories) |
+| `subcategoryGroup` | Subcategory group | `Frontend` | `Frontend`, `Mobile` ([DICTIONARIES §9](DICTIONARIES.md#9-market-statistics-scope-kinds-scopekind-path-parameter)) |
+| `city` | City slug (lowercased) | `warszawa` | Any city served by the portal |
+
+### Query Parameters
+
+| Parameter | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| `campaign` | string | **yes** | Traffic identifier — lowercase letters, digits and hyphens, max 64 chars. |
+| `fields` | string | no | Comma-separated subset of sections to return (case-insensitive): `demand`, `salary`, `experience`, `topLocations`, `topSkills`. When omitted, all sections available for the scope are returned. |
+
+### Section Availability
+
+`topLocations` is **not available** for the `city` scope (the scope is already a single city). Requesting it explicitly for a city returns `400`; omitting `fields` simply skips it. All other sections are available for every scope kind.
+
+### Example Response
+
+A successful `200 OK` response for `subcategory/React` (all sections):
+
+```json
+{
+  "scopeKind": "subcategory",
+  "scopeKey": "React",
+  "generatedAt": "2026-07-08T09:15:00Z",
+  "includedSections": ["demand", "salary", "experience", "topLocations", "topSkills"],
+  "demand": {
+    "activeOffers": 312,
+    "distinctEmployers": 148,
+    "remoteOffers": 121,
+    "remotePercentage": 39,
+    "offerTrend": [
+      { "period": "2025-Q2", "offerCount": 268 },
+      { "period": "2025-Q3", "offerCount": 274 },
+      { "period": "2025-Q4", "offerCount": 289 },
+      { "period": "2026-Q1", "offerCount": 312 }
+    ]
+  },
+  "salary": {
+    "currency": "PLN",
+    "overall": { "min": 8000, "p25": 14000, "median": 18000, "p75": 23000, "max": 38000 },
+    "b2b": { "median": 20000, "average": 20450, "offerCount": 176 },
+    "permanent": { "median": 15000, "average": 15200, "offerCount": 92 }
+  },
+  "experience": [
+    { "label": "Senior", "offerCount": 168, "percentage": 54 },
+    { "label": "Regular", "offerCount": 108, "percentage": 35 },
+    { "label": "Junior", "offerCount": 36, "percentage": 11 }
+  ],
+  "topLocations": [
+    { "label": "Warszawa", "offerCount": 98, "percentage": 31 },
+    { "label": "Kraków", "offerCount": 54, "percentage": 17 },
+    { "label": "Wrocław", "offerCount": 41, "percentage": 13 }
+  ],
+  "topSkills": [
+    { "label": "React", "offerCount": 312, "percentage": 100 },
+    { "label": "TypeScript", "offerCount": 254, "percentage": 81 },
+    { "label": "Redux", "offerCount": 120, "percentage": 38 }
+  ]
+}
+```
+
+#### Top-level fields
+
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `scopeKind` | string | Scope kind the statistics describe (echoes the request, normalized). |
+| `scopeKey` | string | Scope key within the kind. Enum-based kinds keep canonical casing; `city` is a lowercased slug. |
+| `generatedAt` | string | Generation timestamp (UTC, ISO-8601 with a `Z` suffix). |
+| `includedSections` | string[] | Section names actually present in this response — lets you confirm what came back when some were skipped. |
+| `demand` | object | Demand & hiring metrics. Omitted when the section was not requested. |
+| `salary` | object | Salary metrics. Omitted when the section was not requested. |
+| `experience` | object[] | Experience-level distribution. Omitted when not requested. |
+| `topLocations` | object[] | Top cities distribution. Omitted when not requested or unavailable (`city` scope). |
+| `topSkills` | object[] | Top skills distribution. Omitted when not requested. |
+
+#### `demand` fields
+
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `activeOffers` | int | Number of active offers in the scope. |
+| `distinctEmployers` | int | Number of unique employers publishing in the scope. |
+| `remoteOffers` | int | Number of fully remote offers. |
+| `remotePercentage` | int | Share of fully remote offers (0–100). |
+| `offerTrend` | object[] | Quarterly offer-count trend (precomputed), up to the 8 most recent quarters, oldest first. |
+
+#### `offerTrend[]` fields
+
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `period` | string | Quarter label in `YYYY-Qn` format (e.g. `2026-Q1`). |
+| `offerCount` | int | Number of offers in that quarter. |
+
+#### `salary` fields
+
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `currency` | string | Currency of every amount below. Always `PLN`. |
+| `overall` | object \| null | Salary band computed live from active offers (percentiles). `null` when no offer in the scope declares a salary. |
+| `b2b` | object \| null | Precomputed B2B salary stat. `null` when there is no precomputed data. |
+| `permanent` | object \| null | Precomputed permanent-contract (UoP) salary stat. `null` when there is no precomputed data. |
+
+#### `salary.overall` fields (salary band)
+
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `min` | number | Minimum — lower edge of the range. |
+| `p25` | number | 25th percentile. |
+| `median` | number | Median (50th percentile). |
+| `p75` | number | 75th percentile. |
+| `max` | number | Maximum — upper edge of the range. |
+
+#### `salary.b2b` / `salary.permanent` fields (salary stat)
+
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `median` | number | Median salary for the contract type. |
+| `average` | number | Average salary for the contract type. |
+| `offerCount` | int | Number of offers behind the stat. |
+
+#### `experience[]`, `topLocations[]`, `topSkills[]` fields (bucket)
+
+All three sections share the same bucket shape:
+
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `label` | string | Entry label — experience level (`experience`), city name (`topLocations`) or skill name (`topSkills`). |
+| `offerCount` | int | Number of active offers in this entry. |
+| `percentage` | int | Share against all active offers of the scope (0–100). |
+
+### Error Responses
+
+**400 Bad Request** — invalid or missing `campaign`:
+
+```
+Make sure that campaign parameter exists and contains only lowercase letters, numbers and dashes (max 64 chars long).
+```
+
+**400 Bad Request** — unknown section in `fields`:
+
+```
+Unknown section 'foo'. Available sections: Demand, Salary, Experience, TopLocations, TopSkills.
+```
+
+**400 Bad Request** — a requested section is not available for the scope (e.g. `topLocations` for a city):
+
+```
+Section(s) not available for scope kind 'City': TopLocations. Available for this scope: Demand, Salary, Experience, TopSkills.
+```
+
+**404 Not Found** — unknown `scopeKind` or `scopeKey` (empty body).
 
 **429 Too Many Requests** — rate limit exceeded. Retry after a short delay.
 
@@ -206,6 +384,22 @@ In the `/examples` directory you will find ready-to-run scripts showing how to i
 | [Ruby](examples/ruby/fetch_offers.rb) | Ruby 2.7+ | `examples/ruby` | `ruby fetch_offers.rb` |
 | [Rust](examples/rust/src/main.rs) | Rust 1.70+ | `examples/rust` | `cargo run` |
 | [Swift](examples/swift/Sources/main.swift) | Swift 5.9+ | `examples/swift` | `swift run` |
+
+### Market Statistics Examples
+
+Every language directory also ships a market-statistics example. It fetches all sections for the `subcategory/React` scope, prints every returned value, then makes a second call with `fields=demand,salary` to show the section filter in action.
+
+| Language | Directory | Command |
+| :--- | :--- | :--- |
+| [JavaScript / Node.js](examples/javascript/fetch_statistics.mjs) | `examples/javascript` | `node fetch_statistics.mjs` |
+| [C# / .NET](examples/csharp/StatisticsDemo.cs) | `examples/csharp` | `dotnet run stats` |
+| [Python](examples/python/fetch_statistics.py) | `examples/python` | `python fetch_statistics.py` |
+| [Go](examples/go/statistics.go) | `examples/go` | `go run . stats` |
+| [Java](examples/java/FetchStatistics.java) | `examples/java` | `javac *.java && java FetchStatistics` |
+| [PHP](examples/php/fetch_statistics.php) | `examples/php` | `php fetch_statistics.php` |
+| [Ruby](examples/ruby/fetch_statistics.rb) | `examples/ruby` | `ruby fetch_statistics.rb` |
+| [Rust](examples/rust/src/statistics.rs) | `examples/rust` | `cargo run -- stats` |
+| [Swift](examples/swift/Sources/Statistics.swift) | `examples/swift` | `swift run solidjobs-example stats` |
 
 ## Contributions and Bug Reports
 

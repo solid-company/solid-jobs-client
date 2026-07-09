@@ -30,6 +30,58 @@ public class JsonHelper {
         return null;
     }
 
+    public static double getDouble(String json, String key) {
+        var pattern = "\"" + key + "\"\\s*:\\s*(-?[0-9.]+)";
+        var m = Pattern.compile(pattern).matcher(json);
+        return m.find() ? Double.parseDouble(m.group(1)) : 0.0;
+    }
+
+    /**
+     * Returns the nested JSON object bound to {@code key}, or {@code null} when the key is
+     * absent or its value is {@code null}. Used to tell "section not present" from real data.
+     */
+    public static String extractObject(String json, String key) {
+        return extractContainer(json, key, '{', '}');
+    }
+
+    /** Returns the JSON array bound to {@code key}, or {@code null} when absent / null. */
+    public static String extractArray(String json, String key) {
+        return extractContainer(json, key, '[', ']');
+    }
+
+    private static String extractContainer(String json, String key, char open, char close) {
+        // Match the key only where it is immediately followed by a colon, i.e. a real
+        // object member. This skips bare string occurrences such as the section names
+        // listed inside the includedSections array, which otherwise match first.
+        var m = Pattern.compile("\"" + Pattern.quote(key) + "\"\\s*:").matcher(json);
+        if (!m.find()) return null;
+
+        int i = m.end();
+        while (i < json.length() && Character.isWhitespace(json.charAt(i))) i++;
+        if (i >= json.length() || json.charAt(i) != open) return null; // null or other scalar
+
+        int depth = 0;
+        for (int j = i; j < json.length(); j++) {
+            char c = json.charAt(j);
+            if (c == open) depth++;
+            else if (c == close) {
+                depth--;
+                if (depth == 0) return json.substring(i, j + 1);
+            }
+        }
+        return null;
+    }
+
+    /** Parses a flat JSON array of strings (e.g. includedSections) into a list. */
+    public static List<String> getStringArray(String json, String key) {
+        var result = new ArrayList<String>();
+        var array = extractArray(json, key);
+        if (array == null) return result;
+        var m = Pattern.compile("\"([^\"]*)\"").matcher(array);
+        while (m.find()) result.add(m.group(1));
+        return result;
+    }
+
     public static List<String> getObjectsInArray(String json) {
         var items = new ArrayList<String>();
         int depth = 0;

@@ -72,6 +72,29 @@ class SolidJobsClient:
         response.raise_for_status()
         return response.json()
 
+    def get_market_statistics(
+        self,
+        scope_kind: str,
+        scope_key: str,
+        campaign: str,
+        *,
+        fields: Optional[List[str]] = None,
+    ) -> Dict[str, Any]:
+        if not CAMPAIGN_RE.match(campaign):
+            raise ValueError("Campaign must contain only lowercase letters, digits and hyphens (max 64 chars).")
+
+        params: Dict[str, Any] = {"campaign": campaign}
+        if fields:
+            params["fields"] = ",".join(fields)
+
+        url = f"{self._base_url}/public-api/market-statistics/{scope_kind}/{scope_key}"
+        response = self._request_with_retry(url, params)
+        if not response.ok:
+            raise requests.HTTPError(
+                f"HTTP {response.status_code}: {response.text}", response=response
+            )
+        return response.json()
+
     def get_all_offers(self, division: str, campaign: str, **kwargs) -> Generator[Dict[str, Any], None, None]:
         page_index = kwargs.pop("page_index", 0)
 

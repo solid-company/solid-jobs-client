@@ -1,7 +1,7 @@
 use reqwest::header::HeaderValue;
 use std::time::Duration;
 
-use crate::models::{JobOffer, OffersResponse};
+use crate::models::{JobOffer, MarketStatisticsResponse, OffersResponse};
 
 pub struct SolidJobsClient {
     base_url: String,
@@ -58,6 +58,70 @@ impl SolidJobsClient {
 
             let resp = resp.error_for_status()?;
             return Ok(resp.json::<OffersResponse>().await?);
+        }
+
+        Err("Max retries exceeded".into())
+    }
+
+    /// Fetches labour-market statistics for the given scope. `fields` is an optional
+    /// subset of sections; an empty slice returns all sections available for the scope.
+    pub async fn get_market_statistics(
+        &self,
+        scope_kind: &str,
+        scope_key: &str,
+        campaign: &str,
+        fields: &[&str],
+    ) -> Result<MarketStatisticsResponse, Box<dyn std::error::Error>> {
+        if campaign.is_empty()
+            || campaign.len() > 64
+            || !campaign
+                .bytes()
+                .all(|b| b.is_ascii_lowercase() || b.is_ascii_digit() || b == b'-')
+        {
+            return Err(
+                "campaign must contain only lowercase letters, digits and hyphens (max 64 chars)".into(),
+            );
+        }
+
+        let url = format!(
+            "{}/public-api/market-statistics/{}/{}",
+            self.base_url, scope_kind, scope_key
+        );
+
+        let fields_joined = fields.join(",");
+        let mut params: Vec<(&str, &str)> = vec![("campaign", campaign)];
+        if !fields.is_empty() {
+            params.push(("fields", &fields_joined));
+        }
+
+        for attempt in 0..=self.max_retries {
+            let resp = self
+                .http
+                .get(&url)
+                .query(&params)
+                .header("X-Api-Version", &self.api_version)
+                .send()
+                .await?;
+
+            if resp.status() == reqwest::StatusCode::TOO_MANY_REQUESTS && attempt < self.max_retries
+            {
+                let delay = resp
+                    .headers()
+                    .get("Retry-After")
+                    .and_then(|v: &HeaderValue| v.to_str().ok())
+                    .and_then(|s| s.parse::<u64>().ok())
+                    .unwrap_or(2u64.pow(attempt));
+                eprintln!("Rate limited (429). Retrying in {}s...", delay);
+                tokio::time::sleep(Duration::from_secs(delay)).await;
+                continue;
+            }
+
+            let status = resp.status();
+            if !status.is_success() {
+                let body = resp.text().await.unwrap_or_default();
+                return Err(format!("HTTP {}: {}", status.as_u16(), body.trim()).into());
+            }
+            return Ok(resp.json::<MarketStatisticsResponse>().await?);
         }
 
         Err("Max retries exceeded".into())

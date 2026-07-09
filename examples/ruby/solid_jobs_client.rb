@@ -33,6 +33,18 @@ class SolidJobsClient
     all
   end
 
+  def get_market_statistics(scope_kind, scope_key, campaign, fields: nil)
+    raise ArgumentError, 'Invalid campaign format' unless CAMPAIGN_RE.match?(campaign)
+
+    params = [['campaign', campaign]]
+    params << ['fields', Array(fields).join(',')] if fields && !fields.empty?
+
+    query_string = URI.encode_www_form(params)
+    url = "#{@base_url}/public-api/market-statistics/#{scope_kind}/#{scope_key}?#{query_string}"
+    body = request_with_retry(url)
+    JSON.parse(body)
+  end
+
   private
 
   def request_with_retry(url)
