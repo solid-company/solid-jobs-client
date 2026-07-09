@@ -87,7 +87,11 @@ public sealed partial class SolidJobsClient
         var requestUri = $"public-api/market-statistics/{Uri.EscapeDataString(scopeKind)}/{Uri.EscapeDataString(scopeKey)}?{query}";
 
         using var response = await SendWithRetryAsync(requestUri, cancellationToken);
-        response.EnsureSuccessStatusCode();
+        if (!response.IsSuccessStatusCode)
+        {
+            var body = await response.Content.ReadAsStringAsync(cancellationToken);
+            throw new HttpRequestException($"HTTP {(int)response.StatusCode}: {body}");
+        }
 
         var result = await response.Content.ReadFromJsonAsync<MarketStatisticsResponse>(JsonOptions, cancellationToken);
 

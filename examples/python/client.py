@@ -89,7 +89,10 @@ class SolidJobsClient:
 
         url = f"{self._base_url}/public-api/market-statistics/{scope_kind}/{scope_key}"
         response = self._request_with_retry(url, params)
-        response.raise_for_status()
+        if not response.ok:
+            raise requests.HTTPError(
+                f"HTTP {response.status_code}: {response.text}", response=response
+            )
         return response.json()
 
     def get_all_offers(self, division: str, campaign: str, **kwargs) -> Generator[Dict[str, Any], None, None]:

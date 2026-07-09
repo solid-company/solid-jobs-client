@@ -116,7 +116,11 @@ impl SolidJobsClient {
                 continue;
             }
 
-            let resp = resp.error_for_status()?;
+            let status = resp.status();
+            if !status.is_success() {
+                let body = resp.text().await.unwrap_or_default();
+                return Err(format!("HTTP {}: {}", status.as_u16(), body.trim()).into());
+            }
             return Ok(resp.json::<MarketStatisticsResponse>().await?);
         }
 
