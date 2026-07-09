@@ -178,7 +178,7 @@ A successful `200 OK` response returns a JSON object with the following structur
 **400 Bad Request** — invalid or missing `campaign`:
 
 ```
-Make sure that campaign parameter exist and contains only letters, numbers and dashes (max 64 chars long).
+Make sure that campaign parameter exists and contains only lowercase letters, numbers and dashes (max 64 chars long).
 ```
 
 **400 Bad Request** — invalid `division`:
@@ -360,7 +360,7 @@ Unknown section 'foo'. Available sections: Demand, Salary, Experience, TopLocati
 **400 Bad Request** — a requested section is not available for the scope (e.g. `topLocations` for a city):
 
 ```
-Section(s) not available for scope kind 'City': topLocations. Available for this scope: Demand, Salary, Experience, TopSkills.
+Section(s) not available for scope kind 'City': TopLocations. Available for this scope: Demand, Salary, Experience, TopSkills.
 ```
 
 **404 Not Found** — unknown `scopeKind` or `scopeKey` (empty body).

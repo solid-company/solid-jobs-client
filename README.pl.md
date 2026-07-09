@@ -178,7 +178,7 @@ Poprawna odpowiedź `200 OK` zwraca obiekt JSON o następującej strukturze:
 **400 Bad Request** — nieprawidłowy lub brakujący `campaign`:
 
 ```
-Make sure that campaign parameter exist and contains only letters, numbers and dashes (max 64 chars long).
+Make sure that campaign parameter exists and contains only lowercase letters, numbers and dashes (max 64 chars long).
 ```
 
 **400 Bad Request** — nieprawidłowy `dział`:
@@ -360,7 +360,7 @@ Unknown section 'foo'. Available sections: Demand, Salary, Experience, TopLocati
 **400 Bad Request** — żądana sekcja niedostępna dla zakresu (np. `topLocations` dla miasta):
 
 ```
-Section(s) not available for scope kind 'City': topLocations. Available for this scope: Demand, Salary, Experience, TopSkills.
+Section(s) not available for scope kind 'City': TopLocations. Available for this scope: Demand, Salary, Experience, TopSkills.
 ```
 
 **404 Not Found** — nieznany `scopeKind` lub `scopeKey` (puste ciało odpowiedzi).
