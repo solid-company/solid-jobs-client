@@ -6,8 +6,11 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"regexp"
 	"strings"
 )
+
+var campaignRe = regexp.MustCompile(`^[a-z0-9-]{1,64}$`)
 
 // ─────────────────────────────────────────────────────────────────────────────
 //  MARKET STATISTICS — MODELS
@@ -73,6 +76,10 @@ type Bucket struct {
 // fields is an optional subset of sections; nil/empty returns all sections
 // available for the scope.
 func (c *SolidJobsClient) GetMarketStatistics(scopeKind, scopeKey, campaign string, fields []string) (*MarketStatisticsResponse, error) {
+	if !campaignRe.MatchString(campaign) {
+		return nil, fmt.Errorf("campaign must contain only lowercase letters, digits and hyphens (max 64 chars)")
+	}
+
 	params := url.Values{}
 	params.Set("campaign", campaign)
 	if len(fields) > 0 {

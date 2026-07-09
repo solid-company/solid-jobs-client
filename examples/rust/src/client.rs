@@ -72,6 +72,17 @@ impl SolidJobsClient {
         campaign: &str,
         fields: &[&str],
     ) -> Result<MarketStatisticsResponse, Box<dyn std::error::Error>> {
+        if campaign.is_empty()
+            || campaign.len() > 64
+            || !campaign
+                .bytes()
+                .all(|b| b.is_ascii_lowercase() || b.is_ascii_digit() || b == b'-')
+        {
+            return Err(
+                "campaign must contain only lowercase letters, digits and hyphens (max 64 chars)".into(),
+            );
+        }
+
         let url = format!(
             "{}/public-api/market-statistics/{}/{}",
             self.base_url, scope_kind, scope_key

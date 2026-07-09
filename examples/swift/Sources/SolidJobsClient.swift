@@ -1,5 +1,9 @@
 import Foundation
 
+enum SolidJobsError: Error {
+    case invalidCampaign
+}
+
 class SolidJobsClient {
     let baseURL: String
     let apiVersion: String
@@ -59,6 +63,10 @@ class SolidJobsClient {
         campaign: String,
         fields: [String] = []
     ) async throws -> MarketStatisticsResponse {
+        guard campaign.range(of: "^[a-z0-9-]{1,64}$", options: .regularExpression) != nil else {
+            throw SolidJobsError.invalidCampaign
+        }
+
         var params = [("campaign", campaign)]
         if !fields.isEmpty {
             params.append(("fields", fields.joined(separator: ",")))
