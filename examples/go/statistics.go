@@ -35,7 +35,7 @@ type DemandStats struct {
 
 type TrendPoint struct {
 	Period     string `json:"period"`
-	OfferCount int64  `json:"offerCount"`
+	OfferCount int    `json:"offerCount"`
 }
 
 type SalaryStats struct {

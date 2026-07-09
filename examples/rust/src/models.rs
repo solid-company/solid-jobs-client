@@ -85,7 +85,7 @@ pub struct DemandStats {
 #[serde(rename_all = "camelCase")]
 pub struct TrendPoint {
     pub period: String,
-    pub offer_count: i64,
+    pub offer_count: i32,
 }
 
 #[derive(Debug, Deserialize)]

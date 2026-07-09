@@ -63,7 +63,7 @@ public sealed record TrendPoint
     public required string Period { get; init; }
 
     /// <summary>Offer count for the quarter.</summary>
-    public required long OfferCount { get; init; }
+    public required int OfferCount { get; init; }
 }
 
 /// <summary>Salary metrics for the scope. Monthly amounts in PLN.</summary>
