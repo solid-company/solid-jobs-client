@@ -98,3 +98,55 @@ struct Bucket: Decodable {
     let offerCount: Int
     let percentage: Int
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  MARKET RAPORT
+// ─────────────────────────────────────────────────────────────────────────────
+//  No `keyDecodingStrategy` is set on the decoder, so property names match the
+//  JSON keys verbatim — including `b2bOnly`, `salaryB2B` and `salaryUoP`.
+
+struct MarketRaportResponse: Decodable {
+    let scopeKey: String
+    let generatedAt: String
+    let years: [RaportYear]
+}
+
+struct RaportYear: Decodable {
+    let year: Int
+    let offerCount: Int
+    let contractType: ContractTypeBreakdown
+    let seniority: SeniorityBreakdown
+    // Omitted by the API when the year has no data for that contract type.
+    let salaryB2B: RaportSalary?
+    let salaryUoP: RaportSalary?
+}
+
+/// `total` is the denominator of every percentage here — it is NOT `offerCount`.
+/// Offers proposing neither B2B nor a permanent contract fall outside all three buckets.
+struct ContractTypeBreakdown: Decodable {
+    let b2bOnly: CountWithPercentage
+    let permanentOnly: CountWithPercentage
+    let both: CountWithPercentage
+    let total: Int
+}
+
+/// `total` is the denominator of every percentage here — it is NOT `offerCount`.
+/// Offers with no declared experience level fall outside all three buckets.
+struct SeniorityBreakdown: Decodable {
+    let junior: CountWithPercentage
+    let regular: CountWithPercentage
+    let senior: CountWithPercentage
+    let total: Int
+}
+
+struct CountWithPercentage: Decodable {
+    let count: Int
+    let percentage: Int
+}
+
+struct RaportSalary: Decodable {
+    let median: Double
+    let average: Double
+    /// Number of salary ranges behind the figures — NOT a distinct offer count.
+    let salaryRangeCount: Int
+}

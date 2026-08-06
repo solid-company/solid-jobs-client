@@ -196,6 +196,8 @@ Używane przez [endpoint statystyk rynku](README.pl.md#endpoint-statystyk-rynku)
 
 `scopeKind` jest case-insensitive. Dla rodzajów enumowych `scopeKey` musi być zdefiniowaną wartością (nieznany klucz zwraca `404`); dla `city` akceptowany jest dowolny niepusty slug, normalizowany do małych liter.
 
+> `raport` **nie jest** wartością `scopeKind`. To osobna ścieżka (`/market-statistics/raport/{scopeKey}`) zwracająca inną strukturę, rok po roku — patrz [Endpoint Raportu Rynkowego](README.pl.md#endpoint-raportu-rynkowego).
+
 **Grupy podkategorii** (`scopeKey` dla `subcategoryGroup`):
 
 * `Frontend` — agreguje `JavaScript`, `Angular`, `React`

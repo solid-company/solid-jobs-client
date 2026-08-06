@@ -24,6 +24,13 @@ if (args.Contains("stats"))
     return;
 }
 
+// `dotnet run raport` runs the yearly market-raport demo.
+if (args.Contains("raport"))
+{
+    await RaportDemo.RunAsync(client, "dotnet-raport", cts.Token);
+    return;
+}
+
 var firstPage = await client.GetOffersAsync(
     Division.IT,
     campaign,

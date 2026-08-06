@@ -195,6 +195,8 @@ Used by the [Market Statistics endpoint](README.md#market-statistics-endpoint). 
 
 `scopeKind` is case-insensitive. For enum-based kinds the `scopeKey` must be a defined value (an unknown key returns `404`); for `city` any non-empty slug is accepted and normalized to lowercase.
 
+> `raport` is **not** a `scopeKind`. It is a separate path (`/market-statistics/raport/{scopeKey}`) returning a different, year-by-year payload — see the [Market Raport endpoint](README.md#market-raport-endpoint).
+
 **Subcategory groups** (`scopeKey` for `subcategoryGroup`):
 
 * `Frontend` — aggregates `JavaScript`, `Angular`, `React`

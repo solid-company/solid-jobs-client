@@ -237,7 +237,7 @@ A successful `200 OK` response for `subcategory/React` (all sections):
 {
   "scopeKind": "subcategory",
   "scopeKey": "React",
-  "generatedAt": "2026-07-08T09:15:00Z",
+  "generatedAt": "2026-07-08T09:15:00.1234567+00:00",
   "includedSections": ["demand", "salary", "experience", "topLocations", "topSkills"],
   "demand": {
     "activeOffers": 312,
@@ -281,7 +281,7 @@ A successful `200 OK` response for `subcategory/React` (all sections):
 | :--- | :--- | :--- |
 | `scopeKind` | string | Scope kind the statistics describe (echoes the request, normalized). |
 | `scopeKey` | string | Scope key within the kind. Enum-based kinds keep canonical casing; `city` is a lowercased slug. |
-| `generatedAt` | string | Generation timestamp (UTC, ISO-8601 with a `Z` suffix). |
+| `generatedAt` | string | Generation timestamp (UTC, ISO-8601 with a `+00:00` offset). |
 | `includedSections` | string[] | Section names actually present in this response — lets you confirm what came back when some were skipped. |
 | `demand` | object | Demand & hiring metrics. Omitted when the section was not requested. |
 | `salary` | object | Salary metrics. Omitted when the section was not requested. |
@@ -369,6 +369,157 @@ Section(s) not available for scope kind 'City': TopLocations. Available for this
 
 ---
 
+## Market Raport Endpoint
+
+A year-by-year market report for a **single role** — offer volume, contract-type split, seniority split and salary levels, one entry per calendar year. Unlike the statistics endpoint above there is **no `scopeKind`** (the path segment is always `raport`) and **no `fields`** parameter — the report is always returned whole. Responses are cacheable for up to 1 hour.
+
+```http
+GET https://solid.jobs/public-api/market-statistics/raport/{scopeKey}?campaign=my-awesome-aggregator
+```
+
+The same `X-Api-Version: 1.0` header, the `campaign` rules, and the rate limits (300 req/min per IP, queue 10) described above apply here too.
+
+### Path Parameters
+
+| Parameter | Type | Description |
+| :--- | :--- | :--- |
+| `scopeKey` | string | Role (specialization) the report describes, e.g. `ManualTester`. Case-insensitive; an unknown value returns `404`. Allowed values: [DICTIONARIES §3](DICTIONARIES.md#3-categories-and-subcategories-searchcategories-and-searchsubcategories) (subcategories). |
+
+### Query Parameters
+
+| Parameter | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| `campaign` | string | **yes** | Traffic identifier — lowercase letters, digits and hyphens, max 64 chars. |
+
+### Coverage
+
+The report spans up to **3 calendar years**, oldest first: the current year plus the two before it. The current year is year-to-date, so its counts are naturally lower than a completed year's.
+
+### Example Response
+
+A successful `200 OK` response for `ManualTester` (trimmed here to two years):
+
+```json
+{
+  "scopeKey": "ManualTester",
+  "generatedAt": "2026-08-06T07:39:45.4839069+00:00",
+  "years": [
+    {
+      "year": 2024,
+      "offerCount": 170,
+      "contractType": {
+        "b2bOnly": { "count": 133, "percentage": 81 },
+        "permanentOnly": { "count": 22, "percentage": 13 },
+        "both": { "count": 10, "percentage": 6 },
+        "total": 165
+      },
+      "seniority": {
+        "junior": { "count": 31, "percentage": 19 },
+        "regular": { "count": 107, "percentage": 65 },
+        "senior": { "count": 27, "percentage": 16 },
+        "total": 165
+      },
+      "salaryB2B": { "median": 13450, "average": 13173, "salaryRangeCount": 142 },
+      "salaryUoP": { "median": 6000, "average": 7330, "salaryRangeCount": 32 }
+    },
+    {
+      "year": 2025,
+      "offerCount": 177,
+      "contractType": {
+        "b2bOnly": { "count": 140, "percentage": 82 },
+        "permanentOnly": { "count": 6, "percentage": 4 },
+        "both": { "count": 25, "percentage": 15 },
+        "total": 171
+      },
+      "seniority": {
+        "junior": { "count": 25, "percentage": 14 },
+        "regular": { "count": 115, "percentage": 66 },
+        "senior": { "count": 33, "percentage": 19 },
+        "total": 173
+      },
+      "salaryB2B": { "median": 13050, "average": 13097, "salaryRangeCount": 165 },
+      "salaryUoP": { "median": 9000, "average": 9082, "salaryRangeCount": 31 }
+    }
+  ]
+}
+```
+
+#### Top-level fields
+
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `scopeKey` | string | Role the report describes (echoes the request, canonical casing). |
+| `generatedAt` | string | Generation timestamp (UTC, ISO-8601 with a `+00:00` offset). |
+| `years` | object[] | One entry per calendar year, oldest first. |
+
+#### `years[]` fields
+
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `year` | int | Calendar year the entry describes. |
+| `offerCount` | int | All offers published in the role that year. |
+| `contractType` | object | Split by the contract types an offer proposes. |
+| `seniority` | object | Split by required experience level. |
+| `salaryB2B` | object | B2B salary levels for the year. **Omitted** when the year has no B2B data. |
+| `salaryUoP` | object | Permanent-contract (UoP) salary levels. **Omitted** when the year has no UoP data. |
+
+#### `contractType` fields
+
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `b2bOnly` | object | Offers proposing **only** B2B. |
+| `permanentOnly` | object | Offers proposing **only** a permanent contract (UoP). |
+| `both` | object | Offers proposing **both** B2B and UoP. |
+| `total` | int | Sum of the three buckets — the denominator of their `percentage`. Read the note below: this is **not** `offerCount`. |
+
+#### `seniority` fields
+
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `junior` | object | Offers requiring a junior level. |
+| `regular` | object | Offers requiring a regular level. |
+| `senior` | object | Offers requiring a senior level. |
+| `total` | int | Sum of the three buckets — the denominator of their `percentage`. Read the note below: this is **not** `offerCount`. |
+
+#### `contractType` / `seniority` bucket fields
+
+Every bucket in both breakdowns shares the same shape:
+
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `count` | int | Number of offers in this bucket. |
+| `percentage` | int | Share against the breakdown's own `total` (0–100). |
+
+#### `salaryB2B` / `salaryUoP` fields
+
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `median` | number | Median monthly salary in PLN for the contract type that year. |
+| `average` | number | Average monthly salary in PLN for the contract type that year. |
+| `salaryRangeCount` | int | Number of salary ranges behind the figures — **not** a distinct offer count, see the note below. |
+
+### Reading the Numbers
+
+Three things will trip up a naive integration:
+
+* **`total` is not `offerCount`.** An offer proposing neither B2B nor a permanent contract (a mandate contract, for instance) lands in no `contractType` bucket, and an offer with no declared experience level lands in no `seniority` bucket. Always divide by the breakdown's own `total`, never by `offerCount`. In the example above 2024 has `offerCount` 170 but `contractType.total` 165.
+* **Percentages are rounded independently**, so the three values of a breakdown can add up to 99 or 101 rather than exactly 100.
+* **`salaryRangeCount` counts salary ranges, not offers.** An offer declaring both a primary and a secondary range of the same contract type contributes twice, so this number can exceed the year's offer count.
+
+### Error Responses
+
+**400 Bad Request** — invalid or missing `campaign`:
+
+```
+Make sure that campaign parameter exists and contains only lowercase letters, numbers and dashes (max 64 chars long).
+```
+
+**404 Not Found** — unknown `scopeKey` (empty body).
+
+**429 Too Many Requests** — rate limit exceeded. Retry after a short delay.
+
+---
+
 ## Usage Examples
 
 In the `/examples` directory you will find ready-to-run scripts showing how to integrate with the API. Each example works after cloning the repository — just navigate to the directory and run a single command.
@@ -400,6 +551,22 @@ Every language directory also ships a market-statistics example. It fetches all 
 | [Ruby](examples/ruby/fetch_statistics.rb) | `examples/ruby` | `ruby fetch_statistics.rb` |
 | [Rust](examples/rust/src/statistics.rs) | `examples/rust` | `cargo run -- stats` |
 | [Swift](examples/swift/Sources/Statistics.swift) | `examples/swift` | `swift run solidjobs-example stats` |
+
+### Market Raport Examples
+
+Every language directory also ships a market-raport example. It fetches the yearly report for the `ManualTester` role and prints, for each year, the offer count, the contract-type and seniority splits, and the B2B / UoP salary levels.
+
+| Language | Directory | Command |
+| :--- | :--- | :--- |
+| [JavaScript / Node.js](examples/javascript/fetch_raport.mjs) | `examples/javascript` | `node fetch_raport.mjs` |
+| [C# / .NET](examples/csharp/RaportDemo.cs) | `examples/csharp` | `dotnet run raport` |
+| [Python](examples/python/fetch_raport.py) | `examples/python` | `python fetch_raport.py` |
+| [Go](examples/go/raport.go) | `examples/go` | `go run . raport` |
+| [Java](examples/java/FetchRaport.java) | `examples/java` | `javac *.java && java FetchRaport` |
+| [PHP](examples/php/fetch_raport.php) | `examples/php` | `php fetch_raport.php` |
+| [Ruby](examples/ruby/fetch_raport.rb) | `examples/ruby` | `ruby fetch_raport.rb` |
+| [Rust](examples/rust/src/raport.rs) | `examples/rust` | `cargo run -- raport` |
+| [Swift](examples/swift/Sources/Raport.swift) | `examples/swift` | `swift run solidjobs-example raport` |
 
 ## Contributions and Bug Reports
 

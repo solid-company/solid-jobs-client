@@ -237,7 +237,7 @@ Poprawna odpowiedź `200 OK` dla `subcategory/React` (wszystkie sekcje):
 {
   "scopeKind": "subcategory",
   "scopeKey": "React",
-  "generatedAt": "2026-07-08T09:15:00Z",
+  "generatedAt": "2026-07-08T09:15:00.1234567+00:00",
   "includedSections": ["demand", "salary", "experience", "topLocations", "topSkills"],
   "demand": {
     "activeOffers": 312,
@@ -281,7 +281,7 @@ Poprawna odpowiedź `200 OK` dla `subcategory/React` (wszystkie sekcje):
 | :--- | :--- | :--- |
 | `scopeKind` | string | Rodzaj zakresu, którego dotyczą statystyki (odzwierciedla żądanie, znormalizowany). |
 | `scopeKey` | string | Klucz zakresu w obrębie rodzaju. Rodzaje enumowe zachowują kanoniczną wielkość liter; `city` to slug małymi literami. |
-| `generatedAt` | string | Moment wygenerowania (UTC, ISO-8601 z sufiksem `Z`). |
+| `generatedAt` | string | Moment wygenerowania (UTC, ISO-8601 z przesunięciem `+00:00`). |
 | `includedSections` | string[] | Nazwy sekcji faktycznie obecnych w odpowiedzi — pozwala sprawdzić, co wróciło, gdy część pominięto. |
 | `demand` | object | Metryki popytu i zatrudnienia. Pominięte gdy sekcja nieżądana. |
 | `salary` | object | Metryki płacowe. Pominięte gdy sekcja nieżądana. |
@@ -369,6 +369,157 @@ Section(s) not available for scope kind 'City': TopLocations. Available for this
 
 ---
 
+## Endpoint Raportu Rynkowego
+
+Raport rynkowy rok po roku dla **pojedynczej roli** — liczba ofert, podział na typy umów, podział na poziomy doświadczenia oraz poziomy wynagrodzeń, po jednym wpisie na rok kalendarzowy. W odróżnieniu od endpointu statystyk powyżej **nie ma tu `scopeKind`** (segment ścieżki to zawsze `raport`) ani parametru **`fields`** — raport zawsze zwracany jest w całości. Odpowiedzi można cachować do 1 godziny.
+
+```http
+GET https://solid.jobs/public-api/market-statistics/raport/{scopeKey}?campaign=my-awesome-aggregator
+```
+
+Obowiązuje ten sam nagłówek `X-Api-Version: 1.0`, te same zasady dla `campaign` oraz te same limity zapytań (300 zapytań/min na IP, kolejka 10), co opisano wyżej.
+
+### Parametry ścieżki
+
+| Parametr | Typ | Opis |
+| :--- | :--- | :--- |
+| `scopeKey` | string | Rola (specjalizacja), której dotyczy raport, np. `ManualTester`. Wielkość liter nie ma znaczenia; nieznana wartość zwraca `404`. Dozwolone wartości: [DICTIONARIES §3](DICTIONARIES.pl.md#3-kategorie-i-podkategorie-searchcategories-i-searchsubcategories) (podkategorie). |
+
+### Parametry zapytania
+
+| Parametr | Typ | Wymagany | Opis |
+| :--- | :--- | :--- | :--- |
+| `campaign` | string | **tak** | Identyfikator ruchu — małe litery, cyfry i myślniki, maks. 64 znaki. |
+
+### Zakres czasowy
+
+Raport obejmuje do **3 lat kalendarzowych**, od najstarszego: rok bieżący i dwa poprzednie. Rok bieżący liczony jest od początku roku do dziś, więc jego wartości są naturalnie niższe niż roku zakończonego.
+
+### Przykładowa odpowiedź
+
+Poprawna odpowiedź `200 OK` dla `ManualTester` (skrócona tutaj do dwóch lat):
+
+```json
+{
+  "scopeKey": "ManualTester",
+  "generatedAt": "2026-08-06T07:39:45.4839069+00:00",
+  "years": [
+    {
+      "year": 2024,
+      "offerCount": 170,
+      "contractType": {
+        "b2bOnly": { "count": 133, "percentage": 81 },
+        "permanentOnly": { "count": 22, "percentage": 13 },
+        "both": { "count": 10, "percentage": 6 },
+        "total": 165
+      },
+      "seniority": {
+        "junior": { "count": 31, "percentage": 19 },
+        "regular": { "count": 107, "percentage": 65 },
+        "senior": { "count": 27, "percentage": 16 },
+        "total": 165
+      },
+      "salaryB2B": { "median": 13450, "average": 13173, "salaryRangeCount": 142 },
+      "salaryUoP": { "median": 6000, "average": 7330, "salaryRangeCount": 32 }
+    },
+    {
+      "year": 2025,
+      "offerCount": 177,
+      "contractType": {
+        "b2bOnly": { "count": 140, "percentage": 82 },
+        "permanentOnly": { "count": 6, "percentage": 4 },
+        "both": { "count": 25, "percentage": 15 },
+        "total": 171
+      },
+      "seniority": {
+        "junior": { "count": 25, "percentage": 14 },
+        "regular": { "count": 115, "percentage": 66 },
+        "senior": { "count": 33, "percentage": 19 },
+        "total": 173
+      },
+      "salaryB2B": { "median": 13050, "average": 13097, "salaryRangeCount": 165 },
+      "salaryUoP": { "median": 9000, "average": 9082, "salaryRangeCount": 31 }
+    }
+  ]
+}
+```
+
+#### Pola najwyższego poziomu
+
+| Pole | Typ | Opis |
+| :--- | :--- | :--- |
+| `scopeKey` | string | Rola, której dotyczy raport (powtórzenie żądania, kanoniczna wielkość liter). |
+| `generatedAt` | string | Moment wygenerowania (UTC, ISO-8601 z przesunięciem `+00:00`). |
+| `years` | object[] | Po jednym wpisie na rok kalendarzowy, od najstarszego. |
+
+#### Pola `years[]`
+
+| Pole | Typ | Opis |
+| :--- | :--- | :--- |
+| `year` | int | Rok kalendarzowy, którego dotyczy wpis. |
+| `offerCount` | int | Wszystkie oferty opublikowane w tej roli w danym roku. |
+| `contractType` | object | Podział wg typów umów proponowanych w ofercie. |
+| `seniority` | object | Podział wg wymaganego poziomu doświadczenia. |
+| `salaryB2B` | object | Poziomy wynagrodzeń B2B w danym roku. **Pomijane**, gdy rok nie ma danych B2B. |
+| `salaryUoP` | object | Poziomy wynagrodzeń dla umowy o pracę (UoP). **Pomijane**, gdy rok nie ma danych UoP. |
+
+#### Pola `contractType`
+
+| Pole | Typ | Opis |
+| :--- | :--- | :--- |
+| `b2bOnly` | object | Oferty proponujące **wyłącznie** B2B. |
+| `permanentOnly` | object | Oferty proponujące **wyłącznie** umowę o pracę (UoP). |
+| `both` | object | Oferty proponujące **zarówno** B2B, jak i UoP. |
+| `total` | int | Suma trzech koszyków — mianownik dla ich `percentage`. Przeczytaj notę niżej: to **nie** jest `offerCount`. |
+
+#### Pola `seniority`
+
+| Pole | Typ | Opis |
+| :--- | :--- | :--- |
+| `junior` | object | Oferty wymagające poziomu junior. |
+| `regular` | object | Oferty wymagające poziomu regular. |
+| `senior` | object | Oferty wymagające poziomu senior. |
+| `total` | int | Suma trzech koszyków — mianownik dla ich `percentage`. Przeczytaj notę niżej: to **nie** jest `offerCount`. |
+
+#### Pola koszyka `contractType` / `seniority`
+
+Każdy koszyk w obu podziałach ma ten sam kształt:
+
+| Pole | Typ | Opis |
+| :--- | :--- | :--- |
+| `count` | int | Liczba ofert w tym koszyku. |
+| `percentage` | int | Udział względem `total` danego podziału (0–100). |
+
+#### Pola `salaryB2B` / `salaryUoP`
+
+| Pole | Typ | Opis |
+| :--- | :--- | :--- |
+| `median` | number | Mediana miesięcznego wynagrodzenia w PLN dla danego typu umowy w tym roku. |
+| `average` | number | Średnie miesięczne wynagrodzenie w PLN dla danego typu umowy w tym roku. |
+| `salaryRangeCount` | int | Liczba widełek stojących za tymi wartościami — **nie** liczba unikalnych ofert, patrz nota niżej. |
+
+### Jak czytać te liczby
+
+Trzy rzeczy, na których naiwna integracja się przewróci:
+
+* **`total` to nie `offerCount`.** Oferta nieproponująca ani B2B, ani umowy o pracę (np. umowa zlecenie) nie trafia do żadnego koszyka `contractType`, a oferta bez określonego poziomu doświadczenia nie trafia do żadnego koszyka `seniority`. Zawsze dziel przez `total` danego podziału, nigdy przez `offerCount`. W przykładzie wyżej rok 2024 ma `offerCount` 170, ale `contractType.total` 165.
+* **Procenty zaokrąglane są niezależnie**, więc trzy wartości podziału mogą zsumować się do 99 albo 101 zamiast dokładnie 100.
+* **`salaryRangeCount` liczy widełki, nie oferty.** Oferta deklarująca zarówno główne, jak i dodatkowe widełki tego samego typu umowy liczy się dwa razy, więc ta liczba może przewyższyć liczbę ofert w roku.
+
+### Odpowiedzi błędów
+
+**400 Bad Request** — nieprawidłowy lub brakujący `campaign`:
+
+```
+Make sure that campaign parameter exists and contains only lowercase letters, numbers and dashes (max 64 chars long).
+```
+
+**404 Not Found** — nieznany `scopeKey` (puste ciało odpowiedzi).
+
+**429 Too Many Requests** — przekroczono limit zapytań. Ponów żądanie po krótkiej przerwie.
+
+---
+
 ## Przykłady użycia
 
 W katalogu `/examples` znajdziesz gotowe skrypty pokazujące, jak zintegrować się z API. Każdy przykład działa po sklonowaniu repozytorium — wystarczy przejść do katalogu i uruchomić jedną komendę.
@@ -400,6 +551,22 @@ Każdy katalog językowy zawiera także przykład statystyk rynku. Pobiera wszys
 | [Ruby](examples/ruby/fetch_statistics.rb) | `examples/ruby` | `ruby fetch_statistics.rb` |
 | [Rust](examples/rust/src/statistics.rs) | `examples/rust` | `cargo run -- stats` |
 | [Swift](examples/swift/Sources/Statistics.swift) | `examples/swift` | `swift run solidjobs-example stats` |
+
+### Przykłady raportu rynkowego
+
+Każdy katalog językowy zawiera także przykład raportu rynkowego. Pobiera roczny raport dla roli `ManualTester` i wypisuje dla każdego roku liczbę ofert, podziały na typ umowy i poziom doświadczenia oraz poziomy wynagrodzeń B2B / UoP.
+
+| Język | Katalog | Komenda |
+| :--- | :--- | :--- |
+| [JavaScript / Node.js](examples/javascript/fetch_raport.mjs) | `examples/javascript` | `node fetch_raport.mjs` |
+| [C# / .NET](examples/csharp/RaportDemo.cs) | `examples/csharp` | `dotnet run raport` |
+| [Python](examples/python/fetch_raport.py) | `examples/python` | `python fetch_raport.py` |
+| [Go](examples/go/raport.go) | `examples/go` | `go run . raport` |
+| [Java](examples/java/FetchRaport.java) | `examples/java` | `javac *.java && java FetchRaport` |
+| [PHP](examples/php/fetch_raport.php) | `examples/php` | `php fetch_raport.php` |
+| [Ruby](examples/ruby/fetch_raport.rb) | `examples/ruby` | `ruby fetch_raport.rb` |
+| [Rust](examples/rust/src/raport.rs) | `examples/rust` | `cargo run -- raport` |
+| [Swift](examples/swift/Sources/Raport.swift) | `examples/swift` | `swift run solidjobs-example raport` |
 
 ## Kontrybucje i zgłaszanie błędów
 

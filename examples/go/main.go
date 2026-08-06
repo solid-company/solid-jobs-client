@@ -26,6 +26,12 @@ func main() {
 		return
 	}
 
+	// `go run . raport` runs the yearly market-raport demo.
+	if len(os.Args) > 1 && os.Args[1] == "raport" {
+		runRaportDemo()
+		return
+	}
+
 	client := NewClient()
 	campaign := "go-client"
 

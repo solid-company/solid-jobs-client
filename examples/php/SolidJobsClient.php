@@ -70,6 +70,23 @@ class SolidJobsClient
         return json_decode($body, true);
     }
 
+    public function getMarketRaport(string $scopeKey, string $campaign): array
+    {
+        if (!preg_match('/^[a-z0-9-]{1,64}$/', $campaign)) {
+            throw new InvalidArgumentException('Campaign must contain only lowercase letters, digits and hyphens (max 64 chars).');
+        }
+
+        $params = ['campaign' => $campaign];
+
+        $url = "{$this->baseUrl}/public-api/market-statistics/raport/"
+            . rawurlencode($scopeKey)
+            . '?' . http_build_query($params);
+
+        $body = $this->requestWithRetry($url);
+
+        return json_decode($body, true);
+    }
+
     private function requestWithRetry(string $url): string
     {
         for ($attempt = 0; ; $attempt++) {

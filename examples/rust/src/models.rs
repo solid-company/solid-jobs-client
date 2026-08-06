@@ -122,3 +122,69 @@ pub struct Bucket {
     pub offer_count: i32,
     pub percentage: i32,
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  MARKET RAPORT
+// ─────────────────────────────────────────────────────────────────────────────
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct MarketRaportResponse {
+    pub scope_key: String,
+    pub generated_at: String,
+    pub years: Vec<RaportYear>,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct RaportYear {
+    pub year: i32,
+    pub offer_count: i32,
+    pub contract_type: ContractTypeBreakdown,
+    pub seniority: SeniorityBreakdown,
+    // Omitted by the API when the year has no data for that contract type.
+    // `salaryB2B` / `salaryUoP` do not survive the camelCase rule, hence the explicit renames.
+    #[serde(rename = "salaryB2B")]
+    pub salary_b2b: Option<RaportSalary>,
+    #[serde(rename = "salaryUoP")]
+    pub salary_uop: Option<RaportSalary>,
+}
+
+/// `total` is the denominator of every percentage here — it is NOT `offer_count`.
+/// Offers proposing neither B2B nor a permanent contract fall outside all three buckets.
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ContractTypeBreakdown {
+    #[serde(rename = "b2bOnly")]
+    pub b2b_only: CountWithPercentage,
+    pub permanent_only: CountWithPercentage,
+    pub both: CountWithPercentage,
+    pub total: i32,
+}
+
+/// `total` is the denominator of every percentage here — it is NOT `offer_count`.
+/// Offers with no declared experience level fall outside all three buckets.
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct SeniorityBreakdown {
+    pub junior: CountWithPercentage,
+    pub regular: CountWithPercentage,
+    pub senior: CountWithPercentage,
+    pub total: i32,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct CountWithPercentage {
+    pub count: i32,
+    pub percentage: i32,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct RaportSalary {
+    pub median: f64,
+    pub average: f64,
+    /// Number of salary ranges behind the figures — NOT a distinct offer count.
+    pub salary_range_count: i32,
+}
