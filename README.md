@@ -237,7 +237,7 @@ A successful `200 OK` response for `subcategory/React` (all sections):
 {
   "scopeKind": "subcategory",
   "scopeKey": "React",
-  "generatedAt": "2026-07-08T09:15:00Z",
+  "generatedAt": "2026-07-08T09:15:00.1234567+00:00",
   "includedSections": ["demand", "salary", "experience", "topLocations", "topSkills"],
   "demand": {
     "activeOffers": 312,
@@ -281,7 +281,7 @@ A successful `200 OK` response for `subcategory/React` (all sections):
 | :--- | :--- | :--- |
 | `scopeKind` | string | Scope kind the statistics describe (echoes the request, normalized). |
 | `scopeKey` | string | Scope key within the kind. Enum-based kinds keep canonical casing; `city` is a lowercased slug. |
-| `generatedAt` | string | Generation timestamp (UTC, ISO-8601 with a `Z` suffix). |
+| `generatedAt` | string | Generation timestamp (UTC, ISO-8601 with a `+00:00` offset). |
 | `includedSections` | string[] | Section names actually present in this response — lets you confirm what came back when some were skipped. |
 | `demand` | object | Demand & hiring metrics. Omitted when the section was not requested. |
 | `salary` | object | Salary metrics. Omitted when the section was not requested. |
@@ -369,6 +369,274 @@ Section(s) not available for scope kind 'City': TopLocations. Available for this
 
 ---
 
+## Market Raport Endpoint
+
+A year-by-year market report for a **single role** — offer volume, contract-type split, seniority split and salary levels, one entry per calendar year. Unlike the statistics endpoint above there is **no `scopeKind`** (the path segment is always `raport`) and **no `fields`** parameter — the report is always returned whole. Responses are cacheable for up to 1 hour.
+
+```http
+GET https://solid.jobs/public-api/market-statistics/raport/{scopeKey}?campaign=my-awesome-aggregator
+```
+
+The same `X-Api-Version: 1.0` header, the `campaign` rules, and the rate limits (300 req/min per IP, queue 10) described above apply here too.
+
+### Path Parameters
+
+| Parameter | Type | Description |
+| :--- | :--- | :--- |
+| `scopeKey` | string | Role (specialization) the report describes, e.g. `ManualTester`. Case-insensitive; an unknown value returns `404`. Allowed values: [DICTIONARIES §3](DICTIONARIES.md#3-categories-and-subcategories-searchcategories-and-searchsubcategories) (subcategories). |
+
+### Query Parameters
+
+| Parameter | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| `campaign` | string | **yes** | Traffic identifier — lowercase letters, digits and hyphens, max 64 chars. |
+
+### Coverage
+
+The report spans up to **3 calendar years**, oldest first: the current year plus the two before it. The current year is year-to-date, so its counts are naturally lower than a completed year's.
+
+### Example Response
+
+A successful `200 OK` response for `Golang` (trimmed here to two years, `topSkills` trimmed to a handful of entries):
+
+```json
+{
+  "scopeKey": "Golang",
+  "generatedAt": "2026-08-07T07:14:51.6665451+00:00",
+  "years": [
+    {
+      "year": 2024,
+      "offerCount": 43,
+      "contractType": {
+        "b2bOnly": { "count": 38, "percentage": 88 },
+        "permanentOnly": { "count": 4, "percentage": 9 },
+        "both": { "count": 1, "percentage": 2 },
+        "total": 43
+      },
+      "seniority": {
+        "junior": {
+          "count": 0,
+          "percentage": 0,
+          "contractType": {
+            "b2bOnly": { "count": 0, "percentage": 0 },
+            "permanentOnly": { "count": 0, "percentage": 0 },
+            "both": { "count": 0, "percentage": 0 },
+            "total": 0
+          }
+        },
+        "regular": {
+          "count": 22,
+          "percentage": 51,
+          "contractType": {
+            "b2bOnly": { "count": 20, "percentage": 91 },
+            "permanentOnly": { "count": 2, "percentage": 9 },
+            "both": { "count": 0, "percentage": 0 },
+            "total": 22
+          }
+        },
+        "senior": {
+          "count": 21,
+          "percentage": 49,
+          "contractType": {
+            "b2bOnly": { "count": 18, "percentage": 86 },
+            "permanentOnly": { "count": 2, "percentage": 10 },
+            "both": { "count": 1, "percentage": 5 },
+            "total": 21
+          }
+        },
+        "total": 43
+      },
+      "salaryB2B": {
+        "junior": { "medianLower": 0, "medianUpper": 0, "averageLower": 0, "averageUpper": 0, "salaryRangeCount": 0 },
+        "regular": { "medianLower": 21800, "medianUpper": 26000, "averageLower": 20930, "averageUpper": 26325, "salaryRangeCount": 20 },
+        "senior": { "medianLower": 23500, "medianUpper": 26900, "averageLower": 23068, "averageUpper": 27847, "salaryRangeCount": 19 }
+      },
+      "salaryUoP": {
+        "junior": { "medianLower": 0, "medianUpper": 0, "averageLower": 0, "averageUpper": 0, "salaryRangeCount": 0 },
+        "regular": { "medianLower": 14500, "medianUpper": 18500, "averageLower": 14500, "averageUpper": 18500, "salaryRangeCount": 2 },
+        "senior": { "medianLower": 18000, "medianUpper": 22000, "averageLower": 19000, "averageUpper": 23333, "salaryRangeCount": 3 }
+      },
+      "topSkills": [
+        { "name": "Golang", "count": 43 },
+        { "name": "Kubernetes", "count": 19 },
+        { "name": "Docker", "count": 16 },
+        { "name": "AWS", "count": 12 },
+        { "name": "MongoDB", "count": 10 },
+        { "name": "React", "count": 6 }
+      ]
+    },
+    {
+      "year": 2025,
+      "offerCount": 43,
+      "contractType": {
+        "b2bOnly": { "count": 40, "percentage": 93 },
+        "permanentOnly": { "count": 3, "percentage": 7 },
+        "both": { "count": 0, "percentage": 0 },
+        "total": 43
+      },
+      "seniority": {
+        "junior": {
+          "count": 0,
+          "percentage": 0,
+          "contractType": {
+            "b2bOnly": { "count": 0, "percentage": 0 },
+            "permanentOnly": { "count": 0, "percentage": 0 },
+            "both": { "count": 0, "percentage": 0 },
+            "total": 0
+          }
+        },
+        "regular": {
+          "count": 23,
+          "percentage": 53,
+          "contractType": {
+            "b2bOnly": { "count": 22, "percentage": 96 },
+            "permanentOnly": { "count": 1, "percentage": 4 },
+            "both": { "count": 0, "percentage": 0 },
+            "total": 23
+          }
+        },
+        "senior": {
+          "count": 20,
+          "percentage": 47,
+          "contractType": {
+            "b2bOnly": { "count": 18, "percentage": 90 },
+            "permanentOnly": { "count": 2, "percentage": 10 },
+            "both": { "count": 0, "percentage": 0 },
+            "total": 20
+          }
+        },
+        "total": 43
+      },
+      "salaryB2B": {
+        "junior": { "medianLower": 0, "medianUpper": 0, "averageLower": 0, "averageUpper": 0, "salaryRangeCount": 0 },
+        "regular": { "medianLower": 21000, "medianUpper": 25200, "averageLower": 21118, "averageUpper": 24877, "salaryRangeCount": 22 },
+        "senior": { "medianLower": 23500, "medianUpper": 27100, "averageLower": 25428, "averageUpper": 30028, "salaryRangeCount": 18 }
+      },
+      "salaryUoP": {
+        "junior": { "medianLower": 0, "medianUpper": 0, "averageLower": 0, "averageUpper": 0, "salaryRangeCount": 0 },
+        "regular": { "medianLower": 19800, "medianUpper": 33400, "averageLower": 19800, "averageUpper": 33400, "salaryRangeCount": 1 },
+        "senior": { "medianLower": 13650, "medianUpper": 22150, "averageLower": 13650, "averageUpper": 22150, "salaryRangeCount": 2 }
+      },
+      "topSkills": [
+        { "name": "Golang", "count": 42 },
+        { "name": "Kubernetes", "count": 20 },
+        { "name": "Docker", "count": 13 },
+        { "name": "SQL", "count": 10 },
+        { "name": "REST", "count": 10 },
+        { "name": "CI/CD", "count": 9 }
+      ]
+    }
+  ]
+}
+```
+
+#### Top-level fields
+
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `scopeKey` | string | Role the report describes (echoes the request, canonical casing). |
+| `generatedAt` | string | Generation timestamp (UTC, ISO-8601 with a `+00:00` offset). |
+| `years` | object[] | One entry per calendar year, oldest first. |
+
+#### `years[]` fields
+
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `year` | int | Calendar year the entry describes. |
+| `offerCount` | int | All offers published in the role that year. |
+| `contractType` | object | Split by the contract types an offer proposes. |
+| `seniority` | object | Split by required experience level, with a contract-type split nested inside each level. |
+| `salaryB2B` | object | B2B salary levels for the year, by seniority. **Omitted** when the year has no B2B salary data at all. |
+| `salaryUoP` | object | Permanent-contract (UoP) salary levels, by seniority. **Omitted** when the year has no UoP salary data at all. |
+| `topSkills` | object[] | Most required skills that year, descending by `count`, up to 100 entries. Empty array (never omitted) when there's no data. |
+
+#### `contractType` fields
+
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `b2bOnly` | object | Offers proposing **only** B2B. |
+| `permanentOnly` | object | Offers proposing **only** a permanent contract (UoP). |
+| `both` | object | Offers proposing **both** B2B and UoP. |
+| `total` | int | Sum of the three buckets — the denominator of their `percentage`. Read the note below: this is **not** `offerCount`. |
+
+#### `contractType` bucket fields (`b2bOnly` / `permanentOnly` / `both`)
+
+Every bucket in a `contractType` breakdown — whether at year level or nested inside a `seniority` entry — shares the same shape:
+
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `count` | int | Number of offers in this bucket. |
+| `percentage` | int | Share against the breakdown's own `total` (0–100). |
+
+#### `seniority` fields
+
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `junior` | object | Offers requiring a junior level — count, percentage, and their own contract-type split. |
+| `regular` | object | Offers requiring a regular level — count, percentage, and their own contract-type split. |
+| `senior` | object | Offers requiring a senior level — count, percentage, and their own contract-type split. |
+| `total` | int | Sum of the three levels' `count` — the denominator of their `percentage`. Read the note below: this is **not** `offerCount`. |
+
+#### `seniority` level fields (`junior` / `regular` / `senior`)
+
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `count` | int | Number of offers at this seniority level. |
+| `percentage` | int | Share against `seniority.total` (0–100). |
+| `contractType` | object | Contract-type split **within this seniority level only** — same shape as the year-level `contractType`, with its own independent `total`. |
+
+#### `salaryB2B` / `salaryUoP` fields
+
+When present, both objects are keyed by seniority (`junior`, `regular`, `senior`) rather than being a single flat stat — every present object carries all three keys, even for a seniority with no matching offers that year (see the note below).
+
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `junior` | object | Salary band for junior offers that year. |
+| `regular` | object | Salary band for regular offers that year. |
+| `senior` | object | Salary band for senior offers that year. |
+
+#### Salary band fields (`junior` / `regular` / `senior` under `salaryB2B` / `salaryUoP`)
+
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `medianLower` | number | Lower edge of the median salary range in PLN. |
+| `medianUpper` | number | Upper edge of the median salary range in PLN. |
+| `averageLower` | number | Lower edge of the average salary range in PLN. |
+| `averageUpper` | number | Upper edge of the average salary range in PLN. |
+| `salaryRangeCount` | int | Number of salary ranges behind the figures for this seniority — **not** a distinct offer count, see the note below. All fields are `0` when this seniority has no salary data that year. |
+
+#### `topSkills[]` fields
+
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `name` | string | Skill name. |
+| `count` | int | Number of offers requiring this skill that year — **not** a count of occurrences. |
+
+### Reading the Numbers
+
+Several things will trip up a naive integration:
+
+* **`total` is not `offerCount`, at every level.** An offer proposing neither B2B nor a permanent contract (a mandate contract, for instance) lands in no `contractType` bucket, and an offer with no declared experience level lands in no `seniority` bucket. The year's `contractType.total`, `seniority.total`, and the `contractType.total` nested inside each seniority level are all **independent** denominators — none of them equal `offerCount` or each other. Always divide a `percentage` by the `total` of the object it lives in.
+* **Percentages are rounded independently**, so the three values of a breakdown can add up to 99 or 101 rather than exactly 100.
+* **Salary figures are a band, not a point estimate.** `medianLower`/`medianUpper` and `averageLower`/`averageUpper` come from pooling both ends of every matching salary range, not a single number — read `salaryB2B.regular.medianLower`–`medianUpper` as the range the median falls in for regular B2B offers that year.
+* **A present `salaryB2B`/`salaryUoP` always has all three seniority keys.** A seniority with zero matching offers that year still appears with every field at `0` — only the *whole* `salaryB2B`/`salaryUoP` object is omitted (when there's no salary data at all for that contract type that year), never an individual seniority inside it.
+* **`salaryRangeCount` counts salary ranges, not offers**, per seniority level. An offer declaring both a primary and a secondary range of the same contract type contributes twice, so this number can exceed the year's offer count for that seniority.
+* **`topSkills` is never omitted, only empty**, when a year has no skill data.
+
+### Error Responses
+
+**400 Bad Request** — invalid or missing `campaign`:
+
+```
+Make sure that campaign parameter exists and contains only lowercase letters, numbers and dashes (max 64 chars long).
+```
+
+**404 Not Found** — unknown `scopeKey` (empty body).
+
+**429 Too Many Requests** — rate limit exceeded. Retry after a short delay.
+
+---
+
 ## Usage Examples
 
 In the `/examples` directory you will find ready-to-run scripts showing how to integrate with the API. Each example works after cloning the repository — just navigate to the directory and run a single command.
@@ -400,6 +668,22 @@ Every language directory also ships a market-statistics example. It fetches all 
 | [Ruby](examples/ruby/fetch_statistics.rb) | `examples/ruby` | `ruby fetch_statistics.rb` |
 | [Rust](examples/rust/src/statistics.rs) | `examples/rust` | `cargo run -- stats` |
 | [Swift](examples/swift/Sources/Statistics.swift) | `examples/swift` | `swift run solidjobs-example stats` |
+
+### Market Raport Examples
+
+Every language directory also ships a market-raport example. It fetches the yearly report for the `ManualTester` role and prints, for each year, the offer count, the contract-type and seniority splits, and the B2B / UoP salary levels.
+
+| Language | Directory | Command |
+| :--- | :--- | :--- |
+| [JavaScript / Node.js](examples/javascript/fetch_raport.mjs) | `examples/javascript` | `node fetch_raport.mjs` |
+| [C# / .NET](examples/csharp/RaportDemo.cs) | `examples/csharp` | `dotnet run raport` |
+| [Python](examples/python/fetch_raport.py) | `examples/python` | `python fetch_raport.py` |
+| [Go](examples/go/raport.go) | `examples/go` | `go run . raport` |
+| [Java](examples/java/FetchRaport.java) | `examples/java` | `javac *.java && java FetchRaport` |
+| [PHP](examples/php/fetch_raport.php) | `examples/php` | `php fetch_raport.php` |
+| [Ruby](examples/ruby/fetch_raport.rb) | `examples/ruby` | `ruby fetch_raport.rb` |
+| [Rust](examples/rust/src/raport.rs) | `examples/rust` | `cargo run -- raport` |
+| [Swift](examples/swift/Sources/Raport.swift) | `examples/swift` | `swift run solidjobs-example raport` |
 
 ## Contributions and Bug Reports
 

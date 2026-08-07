@@ -91,6 +91,43 @@ public class SolidJobsClient {
         }
     }
 
+    /**
+     * Fetches the yearly market report for a single role. Unlike
+     * {@link #fetchMarketStatistics} there is no scope kind and no {@code fields} filter —
+     * the report always comes back whole, spanning up to 3 calendar years, oldest first.
+     */
+    public String fetchMarketRaport(String scopeKey, String campaign) throws Exception {
+        if (!CAMPAIGN_RE.matcher(campaign).matches()) {
+            throw new IllegalArgumentException("Invalid campaign format.");
+        }
+
+        var query = "campaign=" + encode(campaign);
+        var uri = BASE_URL + "/public-api/market-statistics/raport/" + encode(scopeKey) + "?" + query;
+
+        for (int attempt = 0; ; attempt++) {
+            var request = HttpRequest.newBuilder()
+                    .uri(URI.create(uri))
+                    .header("Accept", "application/json")
+                    .header("X-Api-Version", API_VERSION)
+                    .timeout(Duration.ofSeconds(30))
+                    .build();
+
+            var response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+
+            if (response.statusCode() != 429 || attempt >= MAX_RETRIES) {
+                if (response.statusCode() != 200) {
+                    throw new RuntimeException("HTTP " + response.statusCode() + ": " + response.body());
+                }
+                return response.body();
+            }
+
+            var retryAfter = response.headers().firstValue("Retry-After");
+            long delay = retryAfter.map(Long::parseLong).orElse((long) Math.pow(2, attempt));
+            System.err.printf("Rate limited (429). Retrying in %ds...%n", delay);
+            Thread.sleep(delay * 1000);
+        }
+    }
+
     private static String buildUri(String division, String campaign, Map<String, String> params) {
         var sb = new StringJoiner("&");
         sb.add("campaign=" + encode(campaign));

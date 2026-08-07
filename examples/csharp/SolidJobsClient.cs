@@ -98,6 +98,40 @@ public sealed partial class SolidJobsClient
         return result ?? throw new InvalidOperationException("API returned an empty response body.");
     }
 
+    /// <summary>Fetches the yearly market report for a single role.</summary>
+    /// <param name="scopeKey">Role (specialization) the report describes, e.g. <c>ManualTester</c>.</param>
+    /// <param name="campaign">Traffic-tracking identifier (required).</param>
+    /// <remarks>
+    /// Unlike <see cref="GetMarketStatisticsAsync"/> there is no scope kind and no <c>fields</c> filter —
+    /// the report always comes back whole, spanning up to 3 calendar years, oldest first.
+    /// </remarks>
+    public async Task<MarketRaportResponse> GetMarketRaportAsync(
+        string scopeKey,
+        string campaign,
+        CancellationToken cancellationToken = default)
+    {
+        if (!CampaignRegex.IsMatch(campaign))
+        {
+            throw new ArgumentException(
+                "Campaign must contain only lowercase letters, digits and hyphens (max 64 chars).",
+                nameof(campaign));
+        }
+
+        var query = $"campaign={Uri.EscapeDataString(campaign)}";
+        var requestUri = $"public-api/market-statistics/raport/{Uri.EscapeDataString(scopeKey)}?{query}";
+
+        using var response = await SendWithRetryAsync(requestUri, cancellationToken);
+        if (!response.IsSuccessStatusCode)
+        {
+            var body = await response.Content.ReadAsStringAsync(cancellationToken);
+            throw new HttpRequestException($"HTTP {(int)response.StatusCode}: {body}");
+        }
+
+        var result = await response.Content.ReadFromJsonAsync<MarketRaportResponse>(JsonOptions, cancellationToken);
+
+        return result ?? throw new InvalidOperationException("API returned an empty response body.");
+    }
+
     /// <summary>
     /// Streams every offer matching the criteria, walking the pages automatically.
     /// </summary>

@@ -1,5 +1,6 @@
 mod client;
 mod models;
+mod raport;
 mod statistics;
 
 use client::SolidJobsClient;
@@ -23,6 +24,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // `cargo run -- stats` runs the market-statistics demo instead of the offers demo.
     if std::env::args().any(|a| a == "stats") {
         return statistics::run().await;
+    }
+
+    // `cargo run -- raport` runs the yearly market-raport demo.
+    if std::env::args().any(|a| a == "raport") {
+        return raport::run().await;
     }
 
     let client = SolidJobsClient::new();

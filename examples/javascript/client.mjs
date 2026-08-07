@@ -48,6 +48,24 @@ export class SolidJobsClient {
         return response.json();
     }
 
+    async getMarketRaport(scopeKey, campaign) {
+        if (!/^[a-z0-9-]{1,64}$/.test(campaign)) {
+            throw new Error('Campaign must contain only lowercase letters, digits and hyphens (max 64 chars).');
+        }
+
+        const params = new URLSearchParams({ campaign });
+
+        const url = `${this.#baseUrl}/public-api/market-statistics/raport/${scopeKey}?${params}`;
+        const response = await this.#fetchWithRetry(url);
+
+        if (!response.ok) {
+            const body = await response.text();
+            throw new Error(`HTTP ${response.status}: ${body}`);
+        }
+
+        return response.json();
+    }
+
     async *getAllOffers(division, campaign, query = {}) {
         let pageIndex = query.pageIndex ?? 0;
 

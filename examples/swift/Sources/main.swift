@@ -6,6 +6,12 @@ if CommandLine.arguments.contains("stats") {
     exit(0)
 }
 
+// `swift run solidjobs-example raport` runs the yearly market-raport demo.
+if CommandLine.arguments.contains("raport") {
+    try await runRaport()
+    exit(0)
+}
+
 func formatSalary(_ salary: Salary) -> String {
     if salary.from == nil, salary.to == nil {
         return "no range (\(salary.currency))"
