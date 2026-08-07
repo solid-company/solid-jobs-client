@@ -116,13 +116,17 @@ struct RaportYear: Decodable {
     let offerCount: Int
     let contractType: ContractTypeBreakdown
     let seniority: SeniorityBreakdown
-    // Omitted by the API when the year has no data for that contract type.
-    let salaryB2B: RaportSalary?
-    let salaryUoP: RaportSalary?
+    // Omitted by the API when the year has no data at all for that contract type.
+    let salaryB2B: RaportSalaryStat?
+    let salaryUoP: RaportSalaryStat?
+    /// Most required skills that year, descending by count, up to 100 entries.
+    /// Empty (never omitted) when there's no data.
+    let topSkills: [RaportSkill]
 }
 
 /// `total` is the denominator of every percentage here — it is NOT `offerCount`.
 /// Offers proposing neither B2B nor a permanent contract fall outside all three buckets.
+/// Used both at year level and nested inside each `SeniorityNode`.
 struct ContractTypeBreakdown: Decodable {
     let b2bOnly: CountWithPercentage
     let permanentOnly: CountWithPercentage
@@ -130,13 +134,20 @@ struct ContractTypeBreakdown: Decodable {
     let total: Int
 }
 
-/// `total` is the denominator of every percentage here — it is NOT `offerCount`.
-/// Offers with no declared experience level fall outside all three buckets.
+/// `total` is the sum of the three levels' `count` — it is NOT `offerCount`.
+/// Offers with no declared experience level fall outside all three levels.
 struct SeniorityBreakdown: Decodable {
-    let junior: CountWithPercentage
-    let regular: CountWithPercentage
-    let senior: CountWithPercentage
+    let junior: SeniorityNode
+    let regular: SeniorityNode
+    let senior: SeniorityNode
     let total: Int
+}
+
+/// One experience level's count, percentage, and its own independent contract-type split.
+struct SeniorityNode: Decodable {
+    let count: Int
+    let percentage: Int
+    let contractType: ContractTypeBreakdown
 }
 
 struct CountWithPercentage: Decodable {
@@ -144,9 +155,29 @@ struct CountWithPercentage: Decodable {
     let percentage: Int
 }
 
-struct RaportSalary: Decodable {
-    let median: Double
-    let average: Double
-    /// Number of salary ranges behind the figures — NOT a distinct offer count.
+/// Salary levels for one contract type in one year, keyed by seniority. When present, all three
+/// seniority keys are always populated — a seniority with no matching offers still appears, with
+/// every field at zero.
+struct RaportSalaryStat: Decodable {
+    let junior: RaportSalaryBand
+    let regular: RaportSalaryBand
+    let senior: RaportSalaryBand
+}
+
+/// Salary band for one seniority level in one year. Monthly amounts in PLN. Figures are a range,
+/// not a single point estimate — pooled from both ends of every matching salary range.
+struct RaportSalaryBand: Decodable {
+    let medianLower: Double
+    let medianUpper: Double
+    let averageLower: Double
+    let averageUpper: Double
+    /// Number of salary ranges behind the figures for this seniority — NOT a distinct offer count.
+    /// All fields are zero when this seniority has no salary data that year.
     let salaryRangeCount: Int
+}
+
+/// One skill and how many offers required it in a given year.
+struct RaportSkill: Decodable {
+    let name: String
+    let count: Int
 }

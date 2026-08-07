@@ -25,9 +25,9 @@ public static class RaportDemo
     {
         Console.WriteLine($"\n[{year.Year}]  offerCount={year.OfferCount}");
 
-        // NOTE: `Total` is the denominator of every percentage below — and it is NOT OfferCount.
-        // Offers proposing neither B2B nor a permanent contract fall outside ContractType, and
-        // offers with no declared experience level fall outside Seniority.
+        // NOTE: every `Total` below is an independent denominator — none of them equal OfferCount
+        // or each other. Offers proposing neither B2B nor a permanent contract fall outside
+        // ContractType, and offers with no declared experience level fall outside Seniority.
         var contract = year.ContractType;
         Console.WriteLine($"  contractType (total={contract.Total}, offerCount={year.OfferCount}):");
         PrintBucket("b2bOnly", contract.B2BOnly, contract.Total);
@@ -36,19 +36,35 @@ public static class RaportDemo
 
         var seniority = year.Seniority;
         Console.WriteLine($"  seniority (total={seniority.Total}, offerCount={year.OfferCount}):");
-        PrintBucket("junior", seniority.Junior, seniority.Total);
-        PrintBucket("regular", seniority.Regular, seniority.Total);
-        PrintBucket("senior", seniority.Senior, seniority.Total);
+        PrintSeniorityNode("junior", seniority.Junior);
+        PrintSeniorityNode("regular", seniority.Regular);
+        PrintSeniorityNode("senior", seniority.Senior);
 
-        Console.WriteLine("  salary (monthly, PLN):");
+        Console.WriteLine("  salary (PLN, per seniority — lower..upper band):");
         PrintSalary("B2B", year.SalaryB2B);
         PrintSalary("UoP", year.SalaryUoP);
+
+        Console.WriteLine($"  topSkills ({year.TopSkills.Count}):");
+        foreach (var skill in year.TopSkills.Take(10))
+        {
+            Console.WriteLine($"    {skill.Name,-20} {skill.Count} offers");
+        }
     }
 
     private static void PrintBucket(string label, CountWithPercentage bucket, int total) =>
         Console.WriteLine($"    {label,-16} {bucket.Count,5} offers  ({bucket.Percentage}% of {total})");
 
-    private static void PrintSalary(string label, RaportSalary? salary)
+    private static void PrintSeniorityNode(string label, SeniorityNode node)
+    {
+        Console.WriteLine($"    {label,-16} {node.Count,5} offers  ({node.Percentage}% of seniority.total)");
+        // Nested contractType has its own independent total — not the seniority level's Count.
+        var contract = node.ContractType;
+        PrintBucket("  b2bOnly", contract.B2BOnly, contract.Total);
+        PrintBucket("  permanentOnly", contract.PermanentOnly, contract.Total);
+        PrintBucket("  both", contract.Both, contract.Total);
+    }
+
+    private static void PrintSalary(string label, RaportSalaryStat? salary)
     {
         // SalaryB2B / SalaryUoP are omitted entirely when the year has no data for that contract type.
         if (salary is null)
@@ -57,6 +73,12 @@ public static class RaportDemo
             return;
         }
 
-        Console.WriteLine($"    {label}: median={salary.Median:0}  average={salary.Average:0}  ranges={salary.SalaryRangeCount}");
+        PrintSalaryBand($"{label} junior", salary.Junior);
+        PrintSalaryBand($"{label} regular", salary.Regular);
+        PrintSalaryBand($"{label} senior", salary.Senior);
     }
+
+    private static void PrintSalaryBand(string label, RaportSalaryBand band) =>
+        // Zero fields mean this seniority has no salary data that year — the object is still present.
+        Console.WriteLine($"    {label,-14} median={band.MedianLower:0}..{band.MedianUpper:0}  average={band.AverageLower:0}..{band.AverageUpper:0}  ranges={band.SalaryRangeCount}");
 }

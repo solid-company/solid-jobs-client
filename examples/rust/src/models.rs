@@ -142,16 +142,20 @@ pub struct RaportYear {
     pub offer_count: i32,
     pub contract_type: ContractTypeBreakdown,
     pub seniority: SeniorityBreakdown,
-    // Omitted by the API when the year has no data for that contract type.
+    // Omitted by the API when the year has no data at all for that contract type.
     // `salaryB2B` / `salaryUoP` do not survive the camelCase rule, hence the explicit renames.
     #[serde(rename = "salaryB2B")]
-    pub salary_b2b: Option<RaportSalary>,
+    pub salary_b2b: Option<RaportSalaryStat>,
     #[serde(rename = "salaryUoP")]
-    pub salary_uop: Option<RaportSalary>,
+    pub salary_uop: Option<RaportSalaryStat>,
+    /// Most required skills that year, descending by count, up to 100 entries.
+    /// Empty (never omitted) when there's no data.
+    pub top_skills: Vec<RaportSkill>,
 }
 
 /// `total` is the denominator of every percentage here — it is NOT `offer_count`.
 /// Offers proposing neither B2B nor a permanent contract fall outside all three buckets.
+/// Used both at year level and nested inside each [`SeniorityNode`].
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ContractTypeBreakdown {
@@ -162,15 +166,24 @@ pub struct ContractTypeBreakdown {
     pub total: i32,
 }
 
-/// `total` is the denominator of every percentage here — it is NOT `offer_count`.
-/// Offers with no declared experience level fall outside all three buckets.
+/// `total` is the sum of the three levels' `count` — it is NOT `offer_count`.
+/// Offers with no declared experience level fall outside all three levels.
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct SeniorityBreakdown {
-    pub junior: CountWithPercentage,
-    pub regular: CountWithPercentage,
-    pub senior: CountWithPercentage,
+    pub junior: SeniorityNode,
+    pub regular: SeniorityNode,
+    pub senior: SeniorityNode,
     pub total: i32,
+}
+
+/// One experience level's count, percentage, and its own independent contract-type split.
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct SeniorityNode {
+    pub count: i32,
+    pub percentage: i32,
+    pub contract_type: ContractTypeBreakdown,
 }
 
 #[derive(Debug, Deserialize)]
@@ -180,11 +193,35 @@ pub struct CountWithPercentage {
     pub percentage: i32,
 }
 
+/// Salary levels for one contract type in one year, keyed by seniority. When present, all three
+/// seniority keys are always populated — a seniority with no matching offers still appears, with
+/// every field at zero.
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct RaportSalary {
-    pub median: f64,
-    pub average: f64,
-    /// Number of salary ranges behind the figures — NOT a distinct offer count.
+pub struct RaportSalaryStat {
+    pub junior: RaportSalaryBand,
+    pub regular: RaportSalaryBand,
+    pub senior: RaportSalaryBand,
+}
+
+/// Salary band for one seniority level in one year. Monthly amounts in PLN. Figures are a range,
+/// not a single point estimate — pooled from both ends of every matching salary range.
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct RaportSalaryBand {
+    pub median_lower: f64,
+    pub median_upper: f64,
+    pub average_lower: f64,
+    pub average_upper: f64,
+    /// Number of salary ranges behind the figures for this seniority — NOT a distinct offer count.
+    /// All fields are zero when this seniority has no salary data that year.
     pub salary_range_count: i32,
+}
+
+/// One skill and how many offers required it in a given year.
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct RaportSkill {
+    pub name: String,
+    pub count: i32,
 }

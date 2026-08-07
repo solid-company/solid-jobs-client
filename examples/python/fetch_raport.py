@@ -14,20 +14,39 @@ def print_bucket(label: str, bucket: Dict[str, Any], total: int) -> None:
     print(f"    {label:<16} {bucket['count']:>5} offers  ({bucket['percentage']}% of {total})")
 
 
+def print_seniority_node(label: str, node: Dict[str, Any]) -> None:
+    print(f"    {label:<16} {node['count']:>5} offers  ({node['percentage']}% of seniority.total)")
+    # Nested contractType has its own independent total — not the seniority level's count.
+    contract = node["contractType"]
+    print_bucket("  b2bOnly", contract["b2bOnly"], contract["total"])
+    print_bucket("  permanentOnly", contract["permanentOnly"], contract["total"])
+    print_bucket("  both", contract["both"], contract["total"])
+
+
+def print_salary_band(label: str, band: Dict[str, Any]) -> None:
+    # Zero fields mean this seniority has no salary data that year — the object is still present.
+    print(
+        f"    {label:<14} median={band['medianLower']}..{band['medianUpper']}  "
+        f"average={band['averageLower']}..{band['averageUpper']}  ranges={band['salaryRangeCount']}"
+    )
+
+
 def print_salary(label: str, salary: Optional[Dict[str, Any]]) -> None:
-    # salaryB2B / salaryUoP are omitted entirely when the year has no data for that contract type.
+    # salaryB2B / salaryUoP are omitted entirely when the year has no data at all for that contract type.
     if not salary:
         print(f"    {label}: (no data for this year)")
         return
-    print(f"    {label}: median={salary['median']}  average={salary['average']}  ranges={salary['salaryRangeCount']}")
+    print_salary_band(f"{label} junior", salary["junior"])
+    print_salary_band(f"{label} regular", salary["regular"])
+    print_salary_band(f"{label} senior", salary["senior"])
 
 
 def print_year(year: Dict[str, Any]) -> None:
     print(f"\n[{year['year']}]  offerCount={year['offerCount']}")
 
-    # NOTE: `total` is the denominator of every `percentage` below — and it is NOT `offerCount`.
-    # Offers proposing neither B2B nor a permanent contract fall outside contractType, and offers
-    # with no declared experience level fall outside seniority.
+    # NOTE: every `total` below is an independent denominator — none of them equal `offerCount`
+    # or each other. Offers proposing neither B2B nor a permanent contract fall outside
+    # contractType, and offers with no declared experience level fall outside seniority.
     contract = year["contractType"]
     print(f"  contractType (total={contract['total']}, offerCount={year['offerCount']}):")
     print_bucket("b2bOnly", contract["b2bOnly"], contract["total"])
@@ -36,13 +55,18 @@ def print_year(year: Dict[str, Any]) -> None:
 
     seniority = year["seniority"]
     print(f"  seniority (total={seniority['total']}, offerCount={year['offerCount']}):")
-    print_bucket("junior", seniority["junior"], seniority["total"])
-    print_bucket("regular", seniority["regular"], seniority["total"])
-    print_bucket("senior", seniority["senior"], seniority["total"])
+    print_seniority_node("junior", seniority["junior"])
+    print_seniority_node("regular", seniority["regular"])
+    print_seniority_node("senior", seniority["senior"])
 
-    print("  salary (monthly, PLN):")
+    print("  salary (PLN, per seniority — lower..upper band):")
     print_salary("B2B", year.get("salaryB2B"))
     print_salary("UoP", year.get("salaryUoP"))
+
+    top_skills = year["topSkills"]
+    print(f"  topSkills ({len(top_skills)}):")
+    for skill in top_skills[:10]:
+        print(f"    {skill['name']:<20} {skill['count']} offers")
 
 
 def main() -> None:

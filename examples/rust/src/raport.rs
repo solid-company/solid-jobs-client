@@ -1,5 +1,5 @@
 use crate::client::SolidJobsClient;
-use crate::models::{CountWithPercentage, RaportSalary, RaportYear};
+use crate::models::{ContractTypeBreakdown, CountWithPercentage, RaportSalaryBand, RaportSalaryStat, RaportYear, SeniorityNode};
 
 fn print_bucket(label: &str, bucket: &CountWithPercentage, total: i32) {
     println!(
@@ -8,44 +8,70 @@ fn print_bucket(label: &str, bucket: &CountWithPercentage, total: i32) {
     );
 }
 
-fn print_salary(label: &str, salary: &Option<RaportSalary>) {
-    // salaryB2B / salaryUoP are omitted entirely when the year has no data for that contract type.
+fn print_contract_type(indent_label_prefix: &str, contract: &ContractTypeBreakdown) {
+    print_bucket(&format!("{indent_label_prefix}b2bOnly"), &contract.b2b_only, contract.total);
+    print_bucket(&format!("{indent_label_prefix}permanentOnly"), &contract.permanent_only, contract.total);
+    print_bucket(&format!("{indent_label_prefix}both"), &contract.both, contract.total);
+}
+
+fn print_seniority_node(label: &str, node: &SeniorityNode) {
+    println!(
+        "    {:<16} {:>5} offers  ({}% of seniority.total)",
+        label, node.count, node.percentage
+    );
+    // Nested contract_type has its own independent total — not the seniority level's count.
+    print_contract_type("  ", &node.contract_type);
+}
+
+fn print_salary_band(label: &str, band: &RaportSalaryBand) {
+    // Zero fields mean this seniority has no salary data that year — the object is still present.
+    println!(
+        "    {:<14} median={:.0}..{:.0}  average={:.0}..{:.0}  ranges={}",
+        label, band.median_lower, band.median_upper, band.average_lower, band.average_upper, band.salary_range_count
+    );
+}
+
+fn print_salary(label: &str, salary: &Option<RaportSalaryStat>) {
+    // salaryB2B / salaryUoP are omitted entirely when the year has no data at all for that contract type.
     match salary {
         None => println!("    {}: (no data for this year)", label),
-        Some(s) => println!(
-            "    {}: median={:.0}  average={:.0}  ranges={}",
-            label, s.median, s.average, s.salary_range_count
-        ),
+        Some(s) => {
+            print_salary_band(&format!("{label} junior"), &s.junior);
+            print_salary_band(&format!("{label} regular"), &s.regular);
+            print_salary_band(&format!("{label} senior"), &s.senior);
+        }
     }
 }
 
 fn print_year(year: &RaportYear) {
     println!("\n[{}]  offerCount={}", year.year, year.offer_count);
 
-    // NOTE: `total` is the denominator of every percentage below — and it is NOT `offer_count`.
-    // Offers proposing neither B2B nor a permanent contract fall outside contract_type, and
-    // offers with no declared experience level fall outside seniority.
+    // Every `total` below is an independent denominator — none of them equal `offer_count`
+    // or each other.
     let c = &year.contract_type;
     println!(
         "  contractType (total={}, offerCount={}):",
         c.total, year.offer_count
     );
-    print_bucket("b2bOnly", &c.b2b_only, c.total);
-    print_bucket("permanentOnly", &c.permanent_only, c.total);
-    print_bucket("both", &c.both, c.total);
+    print_contract_type("", c);
 
     let s = &year.seniority;
     println!(
         "  seniority (total={}, offerCount={}):",
         s.total, year.offer_count
     );
-    print_bucket("junior", &s.junior, s.total);
-    print_bucket("regular", &s.regular, s.total);
-    print_bucket("senior", &s.senior, s.total);
+    print_seniority_node("junior", &s.junior);
+    print_seniority_node("regular", &s.regular);
+    print_seniority_node("senior", &s.senior);
 
-    println!("  salary (monthly, PLN):");
+    println!("  salary (PLN, per seniority — lower..upper band):");
     print_salary("B2B", &year.salary_b2b);
     print_salary("UoP", &year.salary_uop);
+
+    println!("  topSkills ({}):", year.top_skills.len());
+    for skill in year.top_skills.iter().take(10) {
+        println!("    {:<20} {} offers", skill.name, skill.count);
+    }
 }
 
 pub async fn run() -> Result<(), Box<dyn std::error::Error>> {
