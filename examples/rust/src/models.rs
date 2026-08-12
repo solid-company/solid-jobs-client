@@ -151,6 +151,24 @@ pub struct RaportYear {
     /// Most required skills that year, descending by count, up to 100 entries.
     /// Empty (never omitted) when there's no data.
     pub top_skills: Vec<RaportSkill>,
+    /// Per-quarter breakdown of the same year, oldest first.
+    pub quarters: Vec<RaportQuarter>,
+}
+
+/// A single calendar quarter within a [`RaportYear`]. Same shape and omission rules as the
+/// year itself, just scoped to the quarter — there is no `top_skills` at this level.
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct RaportQuarter {
+    pub quarter: i32,
+    pub offer_count: i32,
+    pub contract_type: ContractTypeBreakdown,
+    pub seniority: SeniorityBreakdown,
+    // Omitted by the API when the quarter has no data at all for that contract type.
+    #[serde(rename = "salaryB2B")]
+    pub salary_b2b: Option<RaportSalaryStat>,
+    #[serde(rename = "salaryUoP")]
+    pub salary_uop: Option<RaportSalaryStat>,
 }
 
 /// `total` is the denominator of every percentage here — it is NOT `offer_count`.

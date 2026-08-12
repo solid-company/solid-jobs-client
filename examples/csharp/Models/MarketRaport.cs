@@ -44,6 +44,36 @@ public sealed record RaportYear
 
     /// <summary>Most required skills that year, descending by count, up to 100 entries. Empty (never omitted) when there's no data.</summary>
     public required IReadOnlyList<RaportSkill> TopSkills { get; init; }
+
+    /// <summary>Per-quarter breakdown of the same year, oldest first.</summary>
+    public required IReadOnlyList<RaportQuarter> Quarters { get; init; }
+}
+
+/// <summary>
+/// A single calendar quarter within a <see cref="RaportYear"/>. Same shape and omission rules
+/// as the year itself, just scoped to the quarter — there is no <c>TopSkills</c> at this level.
+/// </summary>
+public sealed record RaportQuarter
+{
+    /// <summary>Quarter number, 1-4.</summary>
+    public required int Quarter { get; init; }
+
+    /// <summary>All offers published in the role that quarter.</summary>
+    public required int OfferCount { get; init; }
+
+    /// <summary>Split by the contract types an offer proposes, independent of the year-level total.</summary>
+    public required ContractTypeBreakdown ContractType { get; init; }
+
+    /// <summary>Split by required experience level, independent of the year-level total.</summary>
+    public required SeniorityBreakdown Seniority { get; init; }
+
+    /// <summary>B2B salary levels for the quarter, by seniority. Null when the quarter has no B2B data at all.</summary>
+    [JsonPropertyName("salaryB2B")]
+    public RaportSalaryStat? SalaryB2B { get; init; }
+
+    /// <summary>Permanent-contract (UoP) salary levels, by seniority. Null when the quarter has no UoP data at all.</summary>
+    [JsonPropertyName("salaryUoP")]
+    public RaportSalaryStat? SalaryUoP { get; init; }
 }
 
 /// <summary>

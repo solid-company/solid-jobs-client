@@ -31,6 +31,20 @@ type RaportYear struct {
 	// Most required skills that year, descending by Count, up to 100 entries.
 	// Empty (never omitted) when there's no data.
 	TopSkills []RaportSkill `json:"topSkills"`
+	// Per-quarter breakdown of the same year, oldest first.
+	Quarters []RaportQuarter `json:"quarters"`
+}
+
+// RaportQuarter is a single calendar quarter within a RaportYear. Same shape and omission
+// rules as the year itself, just scoped to the quarter — there is no TopSkills at this level.
+type RaportQuarter struct {
+	Quarter      int                   `json:"quarter"`
+	OfferCount   int                   `json:"offerCount"`
+	ContractType ContractTypeBreakdown `json:"contractType"`
+	Seniority    SeniorityBreakdown    `json:"seniority"`
+	// Omitted by the API when the quarter has no data at all for that contract type.
+	SalaryB2B *RaportSalaryStat `json:"salaryB2B"`
+	SalaryUoP *RaportSalaryStat `json:"salaryUoP"`
 }
 
 // Total is the denominator of every Percentage in the breakdown — it is NOT OfferCount.
@@ -190,6 +204,32 @@ func printRaportYear(year RaportYear) {
 		}
 		fmt.Printf("    %-20s %d offers\n", skill.Name, skill.Count)
 	}
+
+	fmt.Printf("  quarters (%d):\n", len(year.Quarters))
+	for _, quarter := range year.Quarters {
+		printRaportQuarter(quarter)
+	}
+}
+
+func printRaportQuarter(quarter RaportQuarter) {
+	fmt.Printf("    Q%d  offerCount=%d\n", quarter.Quarter, quarter.OfferCount)
+
+	// Same independent-denominator caveat as at year level, scoped to the quarter.
+	c := quarter.ContractType
+	fmt.Printf("      contractType (total=%d, offerCount=%d):\n", c.Total, quarter.OfferCount)
+	printRaportBucket("b2bOnly", c.B2BOnly, c.Total)
+	printRaportBucket("permanentOnly", c.PermanentOnly, c.Total)
+	printRaportBucket("both", c.Both, c.Total)
+
+	s := quarter.Seniority
+	fmt.Printf("      seniority (total=%d, offerCount=%d):\n", s.Total, quarter.OfferCount)
+	printRaportSeniorityNode("junior", s.Junior)
+	printRaportSeniorityNode("regular", s.Regular)
+	printRaportSeniorityNode("senior", s.Senior)
+
+	fmt.Println("      salary (PLN, per seniority — lower..upper band):")
+	printRaportSalary("B2B", quarter.SalaryB2B)
+	printRaportSalary("UoP", quarter.SalaryUoP)
 }
 
 func runRaportDemo() {
