@@ -55,6 +55,37 @@ public class FetchRaport {
             var skill = skillObjects.get(i);
             System.out.printf("    %-20s %d offers%n", JsonHelper.getString(skill, "name"), JsonHelper.getLong(skill, "count"));
         }
+
+        var quarters = JsonHelper.extractArray(year, "quarters");
+        var quarterObjects = quarters == null ? java.util.List.<String>of() : JsonHelper.getObjectsInArray(quarters);
+        System.out.printf("  quarters (%d):%n", quarterObjects.size());
+        for (var quarter : quarterObjects) {
+            printQuarter(quarter);
+        }
+    }
+
+    private static void printQuarter(String quarter) {
+        long qOfferCount = JsonHelper.getLong(quarter, "offerCount");
+        System.out.printf("    Q%d  offerCount=%d%n", JsonHelper.getLong(quarter, "quarter"), qOfferCount);
+
+        // Same independent-denominator caveat as at year level, scoped to the quarter.
+        var contract = JsonHelper.extractObject(quarter, "contractType");
+        long contractTotal = JsonHelper.getLong(contract, "total");
+        System.out.printf("      contractType (total=%d, offerCount=%d):%n", contractTotal, qOfferCount);
+        printBucket("b2bOnly", JsonHelper.extractObject(contract, "b2bOnly"), contractTotal);
+        printBucket("permanentOnly", JsonHelper.extractObject(contract, "permanentOnly"), contractTotal);
+        printBucket("both", JsonHelper.extractObject(contract, "both"), contractTotal);
+
+        var seniority = JsonHelper.extractObject(quarter, "seniority");
+        long seniorityTotal = JsonHelper.getLong(seniority, "total");
+        System.out.printf("      seniority (total=%d, offerCount=%d):%n", seniorityTotal, qOfferCount);
+        printSeniorityNode("junior", JsonHelper.extractObject(seniority, "junior"));
+        printSeniorityNode("regular", JsonHelper.extractObject(seniority, "regular"));
+        printSeniorityNode("senior", JsonHelper.extractObject(seniority, "senior"));
+
+        System.out.println("      salary (PLN, per seniority - lower..upper band):");
+        printSalary("B2B", JsonHelper.extractObject(quarter, "salaryB2B"));
+        printSalary("UoP", JsonHelper.extractObject(quarter, "salaryUoP"));
     }
 
     private static void printBucket(String label, String bucket, long total) {

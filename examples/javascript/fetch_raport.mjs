@@ -60,6 +60,32 @@ function printYear(year) {
     for (const skill of year.topSkills.slice(0, 10)) {
         console.log(`    ${skill.name.padEnd(20)} ${skill.count} offers`);
     }
+
+    console.log(`  quarters (${year.quarters.length}):`);
+    for (const quarter of year.quarters) {
+        printQuarter(quarter);
+    }
+}
+
+function printQuarter(quarter) {
+    console.log(`    Q${quarter.quarter}  offerCount=${quarter.offerCount}`);
+
+    // Same independent-denominator caveat as at year level, scoped to the quarter.
+    const contract = quarter.contractType;
+    console.log(`      contractType (total=${contract.total}, offerCount=${quarter.offerCount}):`);
+    printBucket('b2bOnly', contract.b2bOnly, contract.total);
+    printBucket('permanentOnly', contract.permanentOnly, contract.total);
+    printBucket('both', contract.both, contract.total);
+
+    const seniority = quarter.seniority;
+    console.log(`      seniority (total=${seniority.total}, offerCount=${quarter.offerCount}):`);
+    printSeniorityNode('junior', seniority.junior);
+    printSeniorityNode('regular', seniority.regular);
+    printSeniorityNode('senior', seniority.senior);
+
+    console.log('      salary (PLN, per seniority — lower..upper band):');
+    printSalary('B2B', quarter.salaryB2B);
+    printSalary('UoP', quarter.salaryUoP);
 }
 
 // Yearly market report for a single role — up to 3 calendar years, oldest first.

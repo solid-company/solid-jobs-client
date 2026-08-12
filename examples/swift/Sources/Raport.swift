@@ -61,6 +61,30 @@ private func printYear(_ year: RaportYear) {
         let padded = skill.name.count < 20 ? skill.name.padding(toLength: 20, withPad: " ", startingAt: 0) : skill.name
         print("    \(padded) \(skill.count) offers")
     }
+
+    print("  quarters (\(year.quarters.count)):")
+    for quarter in year.quarters {
+        printQuarter(quarter)
+    }
+}
+
+private func printQuarter(_ quarter: RaportQuarter) {
+    print("    Q\(quarter.quarter)  offerCount=\(quarter.offerCount)")
+
+    // Same independent-denominator caveat as at year level, scoped to the quarter.
+    let contract = quarter.contractType
+    print("      contractType (total=\(contract.total), offerCount=\(quarter.offerCount)):")
+    printContractType("  ", contract)
+
+    let seniority = quarter.seniority
+    print("      seniority (total=\(seniority.total), offerCount=\(quarter.offerCount)):")
+    printSeniorityNode("  junior", seniority.junior)
+    printSeniorityNode("  regular", seniority.regular)
+    printSeniorityNode("  senior", seniority.senior)
+
+    print("      salary (PLN, per seniority — lower..upper band):")
+    printSalary("B2B", quarter.salaryB2B)
+    printSalary("UoP", quarter.salaryUoP)
 }
 
 func runRaport() async throws {

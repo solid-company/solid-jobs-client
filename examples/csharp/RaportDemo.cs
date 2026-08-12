@@ -49,6 +49,34 @@ public static class RaportDemo
         {
             Console.WriteLine($"    {skill.Name,-20} {skill.Count} offers");
         }
+
+        Console.WriteLine($"  quarters ({year.Quarters.Count}):");
+        foreach (var quarter in year.Quarters)
+        {
+            PrintQuarter(quarter);
+        }
+    }
+
+    private static void PrintQuarter(RaportQuarter quarter)
+    {
+        Console.WriteLine($"    Q{quarter.Quarter}  offerCount={quarter.OfferCount}");
+
+        // Same independent-denominator caveat as at year level, scoped to the quarter.
+        var contract = quarter.ContractType;
+        Console.WriteLine($"      contractType (total={contract.Total}, offerCount={quarter.OfferCount}):");
+        PrintBucket("b2bOnly", contract.B2BOnly, contract.Total);
+        PrintBucket("permanentOnly", contract.PermanentOnly, contract.Total);
+        PrintBucket("both", contract.Both, contract.Total);
+
+        var seniority = quarter.Seniority;
+        Console.WriteLine($"      seniority (total={seniority.Total}, offerCount={quarter.OfferCount}):");
+        PrintSeniorityNode("junior", seniority.Junior);
+        PrintSeniorityNode("regular", seniority.Regular);
+        PrintSeniorityNode("senior", seniority.Senior);
+
+        Console.WriteLine("      salary (PLN, per seniority — lower..upper band):");
+        PrintSalary("B2B", quarter.SalaryB2B);
+        PrintSalary("UoP", quarter.SalaryUoP);
     }
 
     private static void PrintBucket(string label, CountWithPercentage bucket, int total) =>

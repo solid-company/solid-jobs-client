@@ -60,6 +60,31 @@ def print_year(year)
   top_skills = year['topSkills']
   puts "  topSkills (#{top_skills.length}):"
   top_skills.first(10).each { |skill| puts "    #{skill['name'].ljust(20)} #{skill['count']} offers" }
+
+  quarters = year['quarters']
+  puts "  quarters (#{quarters.length}):"
+  quarters.each { |quarter| print_quarter(quarter) }
+end
+
+def print_quarter(quarter)
+  puts "    Q#{quarter['quarter']}  offerCount=#{quarter['offerCount']}"
+
+  # Same independent-denominator caveat as at year level, scoped to the quarter.
+  contract = quarter['contractType']
+  puts "      contractType (total=#{contract['total']}, offerCount=#{quarter['offerCount']}):"
+  print_bucket('b2bOnly', contract['b2bOnly'], contract['total'])
+  print_bucket('permanentOnly', contract['permanentOnly'], contract['total'])
+  print_bucket('both', contract['both'], contract['total'])
+
+  seniority = quarter['seniority']
+  puts "      seniority (total=#{seniority['total']}, offerCount=#{quarter['offerCount']}):"
+  print_seniority_node('junior', seniority['junior'])
+  print_seniority_node('regular', seniority['regular'])
+  print_seniority_node('senior', seniority['senior'])
+
+  puts '      salary (PLN, per seniority — lower..upper band):'
+  print_salary('B2B', quarter['salaryB2B'])
+  print_salary('UoP', quarter['salaryUoP'])
 end
 
 client = SolidJobsClient.new

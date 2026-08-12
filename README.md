@@ -406,6 +406,112 @@ A successful `200 OK` response for `Golang` (trimmed here to two years, `topSkil
   "years": [
     {
       "year": 2024,
+      "topSkills": [
+        { "name": "Golang", "count": 43 },
+        { "name": "Kubernetes", "count": 19 },
+        { "name": "Docker", "count": 16 },
+        { "name": "AWS", "count": 12 },
+        { "name": "MongoDB", "count": 10 },
+        { "name": "React", "count": 6 }
+      ],
+      "quarters": [
+        {
+          "quarter": 1,
+          "offerCount": 9,
+          "contractType": {
+            "b2bOnly": { "count": 8, "percentage": 89 },
+            "permanentOnly": { "count": 1, "percentage": 11 },
+            "both": { "count": 0, "percentage": 0 },
+            "total": 9
+          },
+          "seniority": {
+            "junior": {
+              "count": 0,
+              "percentage": 0,
+              "contractType": {
+                "b2bOnly": { "count": 0, "percentage": 0 },
+                "permanentOnly": { "count": 0, "percentage": 0 },
+                "both": { "count": 0, "percentage": 0 },
+                "total": 0
+              }
+            },
+            "regular": {
+              "count": 5,
+              "percentage": 56,
+              "contractType": {
+                "b2bOnly": { "count": 4, "percentage": 80 },
+                "permanentOnly": { "count": 1, "percentage": 20 },
+                "both": { "count": 0, "percentage": 0 },
+                "total": 5
+              }
+            },
+            "senior": {
+              "count": 4,
+              "percentage": 44,
+              "contractType": {
+                "b2bOnly": { "count": 4, "percentage": 100 },
+                "permanentOnly": { "count": 0, "percentage": 0 },
+                "both": { "count": 0, "percentage": 0 },
+                "total": 4
+              }
+            },
+            "total": 9
+          },
+          "salaryB2B": {
+            "junior": { "medianLower": 0, "medianUpper": 0, "averageLower": 0, "averageUpper": 0, "salaryRangeCount": 0 },
+            "regular": { "medianLower": 20500, "medianUpper": 25000, "averageLower": 20100, "averageUpper": 25400, "salaryRangeCount": 4 },
+            "senior": { "medianLower": 22800, "medianUpper": 26500, "averageLower": 22600, "averageUpper": 27100, "salaryRangeCount": 4 }
+          }
+        },
+        {
+          "quarter": 2,
+          "offerCount": 11,
+          "contractType": {
+            "b2bOnly": { "count": 10, "percentage": 91 },
+            "permanentOnly": { "count": 1, "percentage": 9 },
+            "both": { "count": 0, "percentage": 0 },
+            "total": 11
+          },
+          "seniority": {
+            "junior": {
+              "count": 0,
+              "percentage": 0,
+              "contractType": {
+                "b2bOnly": { "count": 0, "percentage": 0 },
+                "permanentOnly": { "count": 0, "percentage": 0 },
+                "both": { "count": 0, "percentage": 0 },
+                "total": 0
+              }
+            },
+            "regular": {
+              "count": 6,
+              "percentage": 55,
+              "contractType": {
+                "b2bOnly": { "count": 5, "percentage": 83 },
+                "permanentOnly": { "count": 1, "percentage": 17 },
+                "both": { "count": 0, "percentage": 0 },
+                "total": 6
+              }
+            },
+            "senior": {
+              "count": 5,
+              "percentage": 45,
+              "contractType": {
+                "b2bOnly": { "count": 5, "percentage": 100 },
+                "permanentOnly": { "count": 0, "percentage": 0 },
+                "both": { "count": 0, "percentage": 0 },
+                "total": 5
+              }
+            },
+            "total": 11
+          },
+          "salaryB2B": {
+            "junior": { "medianLower": 0, "medianUpper": 0, "averageLower": 0, "averageUpper": 0, "salaryRangeCount": 0 },
+            "regular": { "medianLower": 21200, "medianUpper": 25800, "averageLower": 20800, "averageUpper": 26100, "salaryRangeCount": 5 },
+            "senior": { "medianLower": 23000, "medianUpper": 27200, "averageLower": 23200, "averageUpper": 27800, "salaryRangeCount": 5 }
+          }
+        }
+      ],
       "offerCount": 43,
       "contractType": {
         "b2bOnly": { "count": 38, "percentage": 88 },
@@ -455,18 +561,121 @@ A successful `200 OK` response for `Golang` (trimmed here to two years, `topSkil
         "junior": { "medianLower": 0, "medianUpper": 0, "averageLower": 0, "averageUpper": 0, "salaryRangeCount": 0 },
         "regular": { "medianLower": 14500, "medianUpper": 18500, "averageLower": 14500, "averageUpper": 18500, "salaryRangeCount": 2 },
         "senior": { "medianLower": 18000, "medianUpper": 22000, "averageLower": 19000, "averageUpper": 23333, "salaryRangeCount": 3 }
-      },
-      "topSkills": [
-        { "name": "Golang", "count": 43 },
-        { "name": "Kubernetes", "count": 19 },
-        { "name": "Docker", "count": 16 },
-        { "name": "AWS", "count": 12 },
-        { "name": "MongoDB", "count": 10 },
-        { "name": "React", "count": 6 }
-      ]
+      }
     },
     {
       "year": 2025,
+      "topSkills": [
+        { "name": "Golang", "count": 42 },
+        { "name": "Kubernetes", "count": 20 },
+        { "name": "Docker", "count": 13 },
+        { "name": "SQL", "count": 10 },
+        { "name": "REST", "count": 10 },
+        { "name": "CI/CD", "count": 9 }
+      ],
+      "quarters": [
+        {
+          "quarter": 1,
+          "offerCount": 12,
+          "contractType": {
+            "b2bOnly": { "count": 11, "percentage": 92 },
+            "permanentOnly": { "count": 1, "percentage": 8 },
+            "both": { "count": 0, "percentage": 0 },
+            "total": 12
+          },
+          "seniority": {
+            "junior": {
+              "count": 0,
+              "percentage": 0,
+              "contractType": {
+                "b2bOnly": { "count": 0, "percentage": 0 },
+                "permanentOnly": { "count": 0, "percentage": 0 },
+                "both": { "count": 0, "percentage": 0 },
+                "total": 0
+              }
+            },
+            "regular": {
+              "count": 7,
+              "percentage": 58,
+              "contractType": {
+                "b2bOnly": { "count": 6, "percentage": 86 },
+                "permanentOnly": { "count": 1, "percentage": 14 },
+                "both": { "count": 0, "percentage": 0 },
+                "total": 7
+              }
+            },
+            "senior": {
+              "count": 5,
+              "percentage": 42,
+              "contractType": {
+                "b2bOnly": { "count": 5, "percentage": 100 },
+                "permanentOnly": { "count": 0, "percentage": 0 },
+                "both": { "count": 0, "percentage": 0 },
+                "total": 5
+              }
+            },
+            "total": 12
+          },
+          "salaryB2B": {
+            "junior": { "medianLower": 0, "medianUpper": 0, "averageLower": 0, "averageUpper": 0, "salaryRangeCount": 0 },
+            "regular": { "medianLower": 20800, "medianUpper": 24900, "averageLower": 20950, "averageUpper": 24600, "salaryRangeCount": 6 },
+            "senior": { "medianLower": 23200, "medianUpper": 26700, "averageLower": 25100, "averageUpper": 29700, "salaryRangeCount": 4 }
+          },
+          "salaryUoP": {
+            "junior": { "medianLower": 0, "medianUpper": 0, "averageLower": 0, "averageUpper": 0, "salaryRangeCount": 0 },
+            "regular": { "medianLower": 0, "medianUpper": 0, "averageLower": 0, "averageUpper": 0, "salaryRangeCount": 0 },
+            "senior": { "medianLower": 13650, "medianUpper": 22150, "averageLower": 13650, "averageUpper": 22150, "salaryRangeCount": 2 }
+          }
+        },
+        {
+          "quarter": 2,
+          "offerCount": 10,
+          "contractType": {
+            "b2bOnly": { "count": 9, "percentage": 90 },
+            "permanentOnly": { "count": 1, "percentage": 10 },
+            "both": { "count": 0, "percentage": 0 },
+            "total": 10
+          },
+          "seniority": {
+            "junior": {
+              "count": 0,
+              "percentage": 0,
+              "contractType": {
+                "b2bOnly": { "count": 0, "percentage": 0 },
+                "permanentOnly": { "count": 0, "percentage": 0 },
+                "both": { "count": 0, "percentage": 0 },
+                "total": 0
+              }
+            },
+            "regular": {
+              "count": 5,
+              "percentage": 50,
+              "contractType": {
+                "b2bOnly": { "count": 5, "percentage": 100 },
+                "permanentOnly": { "count": 0, "percentage": 0 },
+                "both": { "count": 0, "percentage": 0 },
+                "total": 5
+              }
+            },
+            "senior": {
+              "count": 5,
+              "percentage": 50,
+              "contractType": {
+                "b2bOnly": { "count": 4, "percentage": 80 },
+                "permanentOnly": { "count": 1, "percentage": 20 },
+                "both": { "count": 0, "percentage": 0 },
+                "total": 5
+              }
+            },
+            "total": 10
+          },
+          "salaryB2B": {
+            "junior": { "medianLower": 0, "medianUpper": 0, "averageLower": 0, "averageUpper": 0, "salaryRangeCount": 0 },
+            "regular": { "medianLower": 21400, "medianUpper": 25500, "averageLower": 21300, "averageUpper": 25100, "salaryRangeCount": 5 },
+            "senior": { "medianLower": 23800, "medianUpper": 27500, "averageLower": 25800, "averageUpper": 30300, "salaryRangeCount": 4 }
+          }
+        }
+      ],
       "offerCount": 43,
       "contractType": {
         "b2bOnly": { "count": 40, "percentage": 93 },
@@ -516,15 +725,7 @@ A successful `200 OK` response for `Golang` (trimmed here to two years, `topSkil
         "junior": { "medianLower": 0, "medianUpper": 0, "averageLower": 0, "averageUpper": 0, "salaryRangeCount": 0 },
         "regular": { "medianLower": 19800, "medianUpper": 33400, "averageLower": 19800, "averageUpper": 33400, "salaryRangeCount": 1 },
         "senior": { "medianLower": 13650, "medianUpper": 22150, "averageLower": 13650, "averageUpper": 22150, "salaryRangeCount": 2 }
-      },
-      "topSkills": [
-        { "name": "Golang", "count": 42 },
-        { "name": "Kubernetes", "count": 20 },
-        { "name": "Docker", "count": 13 },
-        { "name": "SQL", "count": 10 },
-        { "name": "REST", "count": 10 },
-        { "name": "CI/CD", "count": 9 }
-      ]
+      }
     }
   ]
 }
@@ -543,12 +744,13 @@ A successful `200 OK` response for `Golang` (trimmed here to two years, `topSkil
 | Field | Type | Description |
 | :--- | :--- | :--- |
 | `year` | int | Calendar year the entry describes. |
+| `topSkills` | object[] | Most required skills that year, descending by `count`, up to 100 entries. Empty array (never omitted) when there's no data. |
+| `quarters` | object[] | Per-quarter breakdown of the same year, oldest first. See [`quarters[]` fields](#quarters-fields) below — each entry has the same `contractType`/`seniority`/`salaryB2B`/`salaryUoP` shape as the year itself (no `topSkills`). |
 | `offerCount` | int | All offers published in the role that year. |
 | `contractType` | object | Split by the contract types an offer proposes. |
 | `seniority` | object | Split by required experience level, with a contract-type split nested inside each level. |
 | `salaryB2B` | object | B2B salary levels for the year, by seniority. **Omitted** when the year has no B2B salary data at all. |
 | `salaryUoP` | object | Permanent-contract (UoP) salary levels, by seniority. **Omitted** when the year has no UoP salary data at all. |
-| `topSkills` | object[] | Most required skills that year, descending by `count`, up to 100 entries. Empty array (never omitted) when there's no data. |
 
 #### `contractType` fields
 
@@ -612,6 +814,19 @@ When present, both objects are keyed by seniority (`junior`, `regular`, `senior`
 | `name` | string | Skill name. |
 | `count` | int | Number of offers requiring this skill that year — **not** a count of occurrences. |
 
+#### `quarters[]` fields
+
+One entry per calendar quarter within the year, oldest first. Every field below has the exact same meaning, shape, and omission rules as its year-level counterpart (see `contractType`, `seniority`, `salaryB2B` / `salaryUoP` above) — just scoped to that quarter instead of the whole year. There is no `topSkills` at this level.
+
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `quarter` | int | Quarter number, `1`–`4`. |
+| `offerCount` | int | All offers published in the role that quarter. |
+| `contractType` | object | Same shape as the year-level `contractType`, with its own independent `total`. |
+| `seniority` | object | Same shape as the year-level `seniority`, with its own independent `total`. |
+| `salaryB2B` | object | Same shape as the year-level `salaryB2B`. **Omitted** when the quarter has no B2B salary data at all. |
+| `salaryUoP` | object | Same shape as the year-level `salaryUoP`. **Omitted** when the quarter has no UoP salary data at all. |
+
 ### Reading the Numbers
 
 Several things will trip up a naive integration:
@@ -622,6 +837,7 @@ Several things will trip up a naive integration:
 * **A present `salaryB2B`/`salaryUoP` always has all three seniority keys.** A seniority with zero matching offers that year still appears with every field at `0` — only the *whole* `salaryB2B`/`salaryUoP` object is omitted (when there's no salary data at all for that contract type that year), never an individual seniority inside it.
 * **`salaryRangeCount` counts salary ranges, not offers**, per seniority level. An offer declaring both a primary and a secondary range of the same contract type contributes twice, so this number can exceed the year's offer count for that seniority.
 * **`topSkills` is never omitted, only empty**, when a year has no skill data.
+* **`quarters` totals are independent of the year's.** Each quarter's `contractType.total` and `seniority.total` are their own denominators, separate from the year-level totals and from every other quarter — don't sum quarters to get the year's numbers, read the year-level fields for that. `salaryB2B` / `salaryUoP` can be omitted per-quarter the same way they can be omitted per-year, independently of whether the year-level object is present.
 
 ### Error Responses
 

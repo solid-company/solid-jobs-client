@@ -122,6 +122,20 @@ struct RaportYear: Decodable {
     /// Most required skills that year, descending by count, up to 100 entries.
     /// Empty (never omitted) when there's no data.
     let topSkills: [RaportSkill]
+    /// Per-quarter breakdown of the same year, oldest first.
+    let quarters: [RaportQuarter]
+}
+
+/// A single calendar quarter within a `RaportYear`. Same shape and omission rules as the
+/// year itself, just scoped to the quarter — there is no `topSkills` at this level.
+struct RaportQuarter: Decodable {
+    let quarter: Int
+    let offerCount: Int
+    let contractType: ContractTypeBreakdown
+    let seniority: SeniorityBreakdown
+    // Omitted by the API when the quarter has no data at all for that contract type.
+    let salaryB2B: RaportSalaryStat?
+    let salaryUoP: RaportSalaryStat?
 }
 
 /// `total` is the denominator of every percentage here — it is NOT `offerCount`.

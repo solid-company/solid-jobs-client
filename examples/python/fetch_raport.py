@@ -68,6 +68,32 @@ def print_year(year: Dict[str, Any]) -> None:
     for skill in top_skills[:10]:
         print(f"    {skill['name']:<20} {skill['count']} offers")
 
+    quarters = year["quarters"]
+    print(f"  quarters ({len(quarters)}):")
+    for quarter in quarters:
+        print_quarter(quarter)
+
+
+def print_quarter(quarter: Dict[str, Any]) -> None:
+    print(f"    Q{quarter['quarter']}  offerCount={quarter['offerCount']}")
+
+    # Same independent-denominator caveat as at year level, scoped to the quarter.
+    contract = quarter["contractType"]
+    print(f"      contractType (total={contract['total']}, offerCount={quarter['offerCount']}):")
+    print_bucket("b2bOnly", contract["b2bOnly"], contract["total"])
+    print_bucket("permanentOnly", contract["permanentOnly"], contract["total"])
+    print_bucket("both", contract["both"], contract["total"])
+
+    seniority = quarter["seniority"]
+    print(f"      seniority (total={seniority['total']}, offerCount={quarter['offerCount']}):")
+    print_seniority_node("junior", seniority["junior"])
+    print_seniority_node("regular", seniority["regular"])
+    print_seniority_node("senior", seniority["senior"])
+
+    print("      salary (PLN, per seniority — lower..upper band):")
+    print_salary("B2B", quarter.get("salaryB2B"))
+    print_salary("UoP", quarter.get("salaryUoP"))
+
 
 def main() -> None:
     client = SolidJobsClient()

@@ -79,6 +79,34 @@ function printYear(array $year): void
     foreach (array_slice($topSkills, 0, 10) as $skill) {
         printf("    %-20s %d offers\n", $skill['name'], $skill['count']);
     }
+
+    $quarters = $year['quarters'];
+    printf("  quarters (%d):\n", count($quarters));
+    foreach ($quarters as $quarter) {
+        printQuarter($quarter);
+    }
+}
+
+function printQuarter(array $quarter): void
+{
+    printf("    Q%d  offerCount=%d\n", $quarter['quarter'], $quarter['offerCount']);
+
+    // Same independent-denominator caveat as at year level, scoped to the quarter.
+    $contract = $quarter['contractType'];
+    printf("      contractType (total=%d, offerCount=%d):\n", $contract['total'], $quarter['offerCount']);
+    printBucket('b2bOnly', $contract['b2bOnly'], $contract['total']);
+    printBucket('permanentOnly', $contract['permanentOnly'], $contract['total']);
+    printBucket('both', $contract['both'], $contract['total']);
+
+    $seniority = $quarter['seniority'];
+    printf("      seniority (total=%d, offerCount=%d):\n", $seniority['total'], $quarter['offerCount']);
+    printSeniorityNode('junior', $seniority['junior']);
+    printSeniorityNode('regular', $seniority['regular']);
+    printSeniorityNode('senior', $seniority['senior']);
+
+    echo "      salary (PLN, per seniority — lower..upper band):\n";
+    printSalary('B2B', $quarter['salaryB2B'] ?? null);
+    printSalary('UoP', $quarter['salaryUoP'] ?? null);
 }
 
 $client = new SolidJobsClient();

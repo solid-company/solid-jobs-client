@@ -1,5 +1,5 @@
 use crate::client::SolidJobsClient;
-use crate::models::{ContractTypeBreakdown, CountWithPercentage, RaportSalaryBand, RaportSalaryStat, RaportYear, SeniorityNode};
+use crate::models::{ContractTypeBreakdown, CountWithPercentage, RaportQuarter, RaportSalaryBand, RaportSalaryStat, RaportYear, SeniorityNode};
 
 fn print_bucket(label: &str, bucket: &CountWithPercentage, total: i32) {
     println!(
@@ -72,6 +72,36 @@ fn print_year(year: &RaportYear) {
     for skill in year.top_skills.iter().take(10) {
         println!("    {:<20} {} offers", skill.name, skill.count);
     }
+
+    println!("  quarters ({}):", year.quarters.len());
+    for quarter in &year.quarters {
+        print_quarter(quarter);
+    }
+}
+
+fn print_quarter(quarter: &RaportQuarter) {
+    println!("    Q{}  offerCount={}", quarter.quarter, quarter.offer_count);
+
+    // Same independent-denominator caveat as at year level, scoped to the quarter.
+    let c = &quarter.contract_type;
+    println!(
+        "      contractType (total={}, offerCount={}):",
+        c.total, quarter.offer_count
+    );
+    print_contract_type("  ", c);
+
+    let s = &quarter.seniority;
+    println!(
+        "      seniority (total={}, offerCount={}):",
+        s.total, quarter.offer_count
+    );
+    print_seniority_node("  junior", &s.junior);
+    print_seniority_node("  regular", &s.regular);
+    print_seniority_node("  senior", &s.senior);
+
+    println!("      salary (PLN, per seniority — lower..upper band):");
+    print_salary("B2B", &quarter.salary_b2b);
+    print_salary("UoP", &quarter.salary_uop);
 }
 
 pub async fn run() -> Result<(), Box<dyn std::error::Error>> {
