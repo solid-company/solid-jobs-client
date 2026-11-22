@@ -7,6 +7,8 @@ Przykładowy klient, który pozwala na pobranie publicznych ofert pracy z portal
 
 API zostało zaprojektowane z myślą o zewnętrznych integratorach, agregatorach ofert pracy oraz osobach chcących budować własne interfejsy i analizy rynku IT.
 
+> **Korzystasz z asystenta AI?** SOLID.Jobs udostępnia też publiczny serwer MCP dla Claude, ChatGPT i innych klientów MCP — patrz [MCP.pl.md](MCP.pl.md).
+
 ## Cechy API
 
 * **Brak klasycznej autoryzacji** — API nie wymaga generowania kluczy (API Keys) ani tokenów OAuth. Dostęp jest kontrolowany przez obowiązkowy parametr `campaign` służący do śledzenia ruchu (patrz niżej).
