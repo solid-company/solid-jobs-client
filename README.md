@@ -61,12 +61,19 @@ We recommend handling the `429` status with a retry mechanism (e.g. exponential 
 | `pageSize` | int | Page size (default 30, max 500). | `50` |
 | `sortActive` | string | Sort field (`validFrom`, `validTo`, `title`, `company`, `salaryFrom`, `salaryTo`, `experienceLevel`). | `validFrom` |
 | `sortDirection` | string | Sort direction (`asc` or `desc`). | `desc` |
-| `search.cities` | string | Comma-separated cities. | `Poznań,Warszawa` |
-| `search.categories` | string[] | Main categories (e.g. `Developer`, `Tester`). | `Developer` |
-| `search.subCategories` | string[] | Subcategories (e.g. `DotNet`, `Java`). | `DotNet,Java` |
-| `search.experiences` | string[] | Experience level. | `Regular,Senior` |
-| `search.searchTerm` | string[] | Full-text search phrases. | `Angular` |
+| `search.cities` | string | Comma-separated cities in a single value. Do not repeat this parameter — only the first value is used. | `Poznań,Warszawa` |
+| `search.categories` | string[] | Main categories (e.g. `Developer`, `Tester`). Repeat the parameter for each value. | `Developer` |
+| `search.subCategories` | string[] | Subcategories (e.g. `DotNet`, `Java`). Repeat the parameter for each value. | `DotNet` |
+| `search.experiences` | string[] | Experience level. Repeat the parameter for each value. | `Senior` |
+| `search.searchTerm` | string[] | Full-text search phrases. Repeat the parameter for each value. | `Angular` |
 | `search.minimumSalary` | int | Minimum salary — lower bound of salary range ≥ value. | `20000` |
+
+> **Multiple values.** `search.cities` takes one comma-separated value, while the `string[]` parameters (`search.categories`, `search.subCategories`, `search.experiences`, `search.searchTerm`) must be repeated once per value; multiple values are combined with OR.
+> Do not comma-join `string[]` values: `search.experiences=Regular,Senior` returns `400`, `search.categories` / `search.subCategories` return unrelated offers, and `search.searchTerm` returns no results.
+>
+> ```
+> ?search.cities=Poznań,Warszawa&search.subCategories=DotNet&search.subCategories=Java&search.experiences=Regular&search.experiences=Senior
+> ```
 
 ---
 

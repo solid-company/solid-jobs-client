@@ -61,12 +61,19 @@ Zalecamy obsługę statusu `429` z mechanizmem retry (np. exponential backoff).
 | `pageSize` | int | Rozmiar strony (domyślnie 30, max 500). | `50` |
 | `sortActive` | string | Pole do sortowania (`validFrom`, `validTo`, `title`, `company`, `salaryFrom`, `salaryTo`, `experienceLevel`). | `validFrom` |
 | `sortDirection` | string | Kierunek sortowania (`asc` lub `desc`). | `desc` |
-| `search.cities` | string | Miasta po przecinku. | `Poznań,Warszawa` |
-| `search.categories` | string[] | Kategorie główne (np. `Developer`, `Tester`). | `Developer` |
-| `search.subCategories` | string[] | Podkategorie (np. `DotNet`, `Java`). | `DotNet,Java` |
-| `search.experiences` | string[] | Poziom doświadczenia. | `Regular,Senior` |
-| `search.searchTerm` | string[] | Frazy do wyszukiwania pełnotekstowego. | `Angular` |
+| `search.cities` | string | Miasta po przecinku w jednej wartości. Nie powtarzaj tego parametru — brana jest tylko pierwsza wartość. | `Poznań,Warszawa` |
+| `search.categories` | string[] | Kategorie główne (np. `Developer`, `Tester`). Powtórz parametr dla każdej wartości. | `Developer` |
+| `search.subCategories` | string[] | Podkategorie (np. `DotNet`, `Java`). Powtórz parametr dla każdej wartości. | `DotNet` |
+| `search.experiences` | string[] | Poziom doświadczenia. Powtórz parametr dla każdej wartości. | `Senior` |
+| `search.searchTerm` | string[] | Frazy do wyszukiwania pełnotekstowego. Powtórz parametr dla każdej wartości. | `Angular` |
 | `search.minimumSalary` | int | Minimalne wynagrodzenie — dolna granica widełek ≥ wartość. | `20000` |
+
+> **Wiele wartości.** `search.cities` przyjmuje jedną wartość z miastami po przecinku, natomiast parametry `string[]` (`search.categories`, `search.subCategories`, `search.experiences`, `search.searchTerm`) trzeba powtórzyć dla każdej wartości; wiele wartości łączone jest przez OR.
+> Nie łącz wartości `string[]` przecinkiem: `search.experiences=Regular,Senior` zwraca `400`, `search.categories` / `search.subCategories` zwracają niepowiązane oferty, a `search.searchTerm` nie zwraca nic.
+>
+> ```
+> ?search.cities=Poznań,Warszawa&search.subCategories=DotNet&search.subCategories=Java&search.experiences=Regular&search.experiences=Senior
+> ```
 
 ---
 
