@@ -7,6 +7,8 @@ A sample client for fetching public job offers from the [SOLID.Jobs](https://sol
 
 The API is designed for external integrators, job aggregators, and anyone who wants to build custom interfaces or IT market analyses.
 
+> **Using an AI assistant?** SOLID.Jobs also runs a public MCP server for Claude, ChatGPT and other MCP clients — see [MCP.md](MCP.md).
+
 ## API Features
 
 * **No classic authorization** — The API does not require API Keys or OAuth tokens. Access is controlled via a mandatory `campaign` parameter used for traffic tracking (see below).
